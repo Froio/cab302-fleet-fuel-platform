@@ -1,0 +1,284 @@
+
+ 
+1.	Sprint 1 Overview
+Sprint 1 will discuss the fundamental features for emissions reporting, analytics, driver assignment, fuel logging and export features. Vehicle CRUD functionality, account/role management and authentication will be focused.
+
+Sprint 1 Goal 
+Allow users to log in and out of application and also allowing fleet managers to manage accounts of users, roles, and records of fleet vehicles.
+Sprint 1 Scope
+Priority	Story	Feature	Story Points	Approx. Effort
+1	US1	User Login	5 SP	8 h
+2	US2	User Logout	2 SP	2.5 h
+3	US3	User & Role Management	5 SP	9.5 h
+4	US4	Create Vehicle	5 SP	9 h
+5	US5	Edit/Delete Vehicle	5 SP	7 h
+	TOTAL		22 SP	36 h
+
+Why are these user stories in Sprint 1
+•	Authentication must exist before users can access role-specific features.
+•	User accounts and roles must exist before drivers can be assigned vehicles.
+•	Vehicles must exist before driver assignment or fuel logging can work.
+•	Completing create, view/update and delete operations establishes the basic vehicle-management foundation.
+•	Stories 6–14 depend on these core capabilities and therefore remain in the Product Backlog for later sprints.
+ 
+2. Product Backlog Selection
+ID	Feature	Sprint 1?	Reason
+User story 1	Login	Yes	Required before application access.
+User story 2	Logout	Yes	Completes the authentication workflow.
+User story 3	User/Role Management	Yes	Creates accounts and permissions needed by later stories.
+User story 4	Create Vehicle	Yes	Vehicles must exist before assignment or fuel logging.
+User story 5	Edit/Delete Vehicle	Yes	Completes basic vehicle management.
+User story 6	Assign Driver to Vehicle	No	Depends on users and vehicles existing.
+User story 7	View Assigned Vehicles	No	Depends on driver assignment.
+User story 8	Record Fuel Fill-Up	No	Depends on vehicle/driver functionality.
+User story 9	View Fuel History	No	Requires fuel logs.
+User story 10	Fuel Efficiency	No	Requires consecutive fuel logs.
+User story 11	Cost Analysis	No	Requires fuel and distance data.
+User story 12	Fleet Reports	No	Requires vehicle/fuel data.
+User story 13	Emissions Comparison	No	Requires emissions/reporting calculations.
+User story 14	CSV Export	No	Requires completed fuel-log functionality.
+
+ 
+3. US1 – User Login
+User Story: As a user, I want to log in using a username and password so that I can securely access the application.
+Acceptance Criteria
+•	Login screen provides username and password fields.
+•	Both username and password must be entered.
+•	Credentials are checked against a valid user account.
+•	Incorrect credentials display an error message and access is denied.
+•	Successful login directs the user to the dashboard appropriate to their role.
+Estimate: 5 SP – approximately 8 hours
+Dependency: Foundation story; required for role-based access.
+Development Tasks
+Development Task	Estimate
+Create/confirm User model	0.5 h
+Define username, password and role properties	0.5 h
+Create authentication service/interface	1 h
+Implement credential validation	1 h
+Create JavaFX Login screen	1 h
+Connect Login UI to authentication logic	1 h
+Implement invalid-login error handling	0.5 h
+Implement role-based dashboard navigation	1 h
+Create authentication unit tests	1.5 h
+
+Trello Checklist
+☐  Create/confirm User model
+☐  Define username, password and role properties
+☐  Create authentication service/interface
+☐  Implement credential validation
+☐  Create JavaFX Login screen
+☐  Connect Login UI to authentication logic
+☐  Implement invalid-login error handling
+☐  Implement role-based dashboard navigation
+☐  Create authentication unit tests
+ 
+4. US2 – User Logout
+User Story: As a user, I want to log out of the application so that I can securely end my session.
+Acceptance Criteria
+•	A Logout option is visible while the user is logged in.
+•	Selecting Logout clears the current authenticated user/session.
+•	The user returns to the Login screen.
+•	Protected functionality requires the user to authenticate again.
+Estimate: 2 SP – approximately 2.5 hours
+Dependency: US1 – User Login.
+Development Tasks
+Development Task	Estimate
+Add Logout button/menu option	0.5 h
+Implement logout/session-clearing logic	0.5 h
+Redirect user to Login screen	0.5 h
+Prevent continued authenticated access	0.5 h
+Test logout workflow	0.5 h
+
+Trello Checklist
+☐  Add Logout button/menu option
+☐  Implement logout/session-clearing logic
+☐  Redirect user to Login screen
+☐  Prevent continued authenticated access
+☐  Test logout workflow
+ 
+ 
+5. US3 – User Account and Role Management
+User Story: As a fleet manager, I want to create and manage user accounts and control role-based access so that drivers and managers receive the appropriate application permissions.
+Acceptance Criteria
+•	Only an authorised fleet manager can access account management.
+•	Fleet manager can create a new user account.
+•	Accounts can be assigned Driver or Fleet Manager roles.
+•	Existing users can be displayed.
+•	Fleet manager can delete an existing account.
+•	Role information is retained and controls access after login.
+Estimate: 5 SP – approximately 9.5 hours
+Dependency: US1 – User Login.
+Development Tasks
+Development Task	Estimate
+Define application roles / Role enum	0.5 h
+Add role property to User model	0.5 h
+Create User Management screen	1.5 h
+Create New User form	1 h
+Add Driver/Manager role selector	0.5 h
+Implement user creation	1 h
+Display existing accounts	1 h
+Implement Delete User	1 h
+Restrict functionality to Fleet Manager	1 h
+Add validation/error handling	0.5 h
+Write user-management tests	1 h
+
+Trello Checklist
+☐  Define application roles / Role enum
+☐  Add role property to User model
+☐  Create User Management screen
+☐  Create New User form
+☐  Add Driver/Manager role selector
+☐  Implement user creation
+☐  Display existing accounts
+☐  Implement Delete User
+☐  Restrict functionality to Fleet Manager
+☐  Add validation/error handling
+☐  Write user-management tests
+6. US4 – Create Vehicle
+User Story: As a fleet manager, I want to create vehicle records and register vehicles in the fleet system so that the application maintains an accurate list of fleet vehicles.
+Acceptance Criteria
+•	Vehicle record contains Vehicle ID, registration, make, model, fuel type and current odometer reading.
+•	Required information is validated before saving.
+•	Saved vehicle appears in the Vehicle List.
+•	Duplicate registration numbers are rejected.
+•	Invalid vehicle information displays an appropriate error.
+•	Only a Fleet Manager can create vehicle records.
+Estimate: 5 SP – approximately 9 hours
+Dependency: US3 – User & Role Management / Fleet Manager access.
+Development Tasks
+Development Task	Estimate
+Create Vehicle model	1 h
+Define Vehicle properties	0.5 h
+Create vehicle storage/data-access functionality	1 h
+Create Add Vehicle JavaFX form	1 h
+Implement required-field validation	1 h
+Implement duplicate registration validation	0.5 h
+Implement Save Vehicle	1 h
+Create/display Vehicle List	1 h
+Refresh Vehicle List after creation	0.5 h
+Create vehicle-creation tests	1.5 h
+
+Trello Checklist
+☐  Create Vehicle model
+☐  Define Vehicle properties
+☐  Create vehicle storage/data-access functionality
+☐  Create Add Vehicle JavaFX form
+☐  Implement required-field validation
+☐  Implement duplicate registration validation
+☐  Implement Save Vehicle
+☐  Create/display Vehicle List
+☐  Refresh Vehicle List after creation
+☐  Create vehicle-creation tests
+ 
+7. US5 – Edit and Delete Vehicle
+User Story: As a fleet manager, I want to edit or remove vehicle records so that fleet information remains accurate and up to date.
+Acceptance Criteria
+•	Fleet manager can select an existing vehicle.
+•	Existing vehicle information can be edited and saved.
+•	Changes immediately appear in the Vehicle List.
+•	Vehicle can be deleted with a confirmation step.
+•	Deleted vehicle is removed from the Vehicle List.
+•	Invalid updates are not saved.
+•	Only Fleet Managers can edit or delete vehicle records.
+•	
+Dependency: US4 – Create Vehicle.
+Development Tasks
+Development Task	Estimate
+Implement vehicle selection	0.5 h
+Create Edit Vehicle form	1 h
+Populate form with existing vehicle information	0.5 h
+Implement vehicle update	1 h
+Validate modified information	0.5 h
+Save changes to storage	0.5 h
+Implement Delete Vehicle action	0.5 h
+Add deletion confirmation	0.5 h
+Refresh Vehicle List after modification	0.5 h
+Test update and delete functionality	1.5 h
+
+Trello Checklist
+☐  Implement vehicle selection
+☐  Create Edit Vehicle form
+☐  Populate form with existing vehicle information
+☐  Implement vehicle update
+☐  Validate modified information
+☐  Save changes to storage
+☐  Implement Delete Vehicle action
+☐  Add deletion confirmation
+☐  Refresh Vehicle List after modification
+☐  Test update and delete functionality
+ 
+8. Sprint 1 Definition of Done
+1.	All acceptance criteria for the story are satisfied.
+2.	Required Java/JavaFX functionality is implemented.
+3.	Appropriate object-oriented design is used.
+4.	Input validation and error handling are implemented.
+5.	Relevant automated/unit tests are written and pass.
+6.	The feature works correctly with the integrated application.
+7.	Code is committed to the team GitHub repository using the agreed branch workflow.
+8.	Code is reviewed before integration where appropriate.
+9.	The completed functionality can be demonstrated to the team and tutor.
+9. Dependencies and Implementation Order
+Recommended sequence: US1 Login → US2 Logout / US3 User & Role Management → US4 Create Vehicle → US5 Edit/Delete Vehicle.
+After Sprint 1, the logical feature path is:
+Users + Vehicles → Driver Assignment → Assigned Vehicle View → Fuel Logging → Fuel History → Efficiency/Cost Analytics → Fleet/Emissions Reports → CSV Export
+10. Proposed Later Sprints
+Sprint	Main Focus	Stories
+Sprint 1	Core authentication and vehicle management	US1–US5
+Sprint 2	Driver assignment and fuel logging	US6–US9
+Sprint 3	Analytics, cost, efficiency and emissions	US10–US13
+Sprint 4	CSV export, integration, refactoring, testing and polish	US14 + outstanding work
+
+11. Trello Changes Required
+•	Move the existing US1, US2, US3, US4 and US5 cards from Backlog into the Sprint 1 list.
+•	Keep US6–US14 in the Product Backlog.
+•	Keep Person 1’s final user-story wording and acceptance criteria on each card.
+•	Add the story-point estimate shown in this document.
+•	Add the Development Tasks as a checklist on each card.
+•	Add the dependency note where relevant.
+•	Take a screenshot before changes, during planning and after the final Sprint 1 list is organised to demonstrate iteration.
+ 
+Work Completed: 
+Reviewed the fourteen finalised project user stories and analysed dependencies between authentication, user management, vehicle management, fuel logging and reporting. Selected US1–US5 for Sprint 1 because these features establish the foundation required for later driver assignment and fuel-management functionality. Broke each selected user story into smaller development and testing tasks, assigned story-point and time estimates, identified dependencies, defined the Sprint Goal and Definition of Done, and prepared the selected stories for the Sprint 1 Trello list.
+Evidence: Original backlog screenshot; Sprint 1 Trello screenshot; story card checklists; estimates; dependency notes; Sprint Goal; Definition of Done; planning notes.
+Next Steps: Begin Sprint 1 implementation and update Trello as stories move through development, testing and completion.
+ 
+13. GitHub Changes Needed
+For the Week 7 planning task, Trello is the primary project-management artefact. You do not need to implement every Sprint 1 feature in GitHub immediately just to complete the planning task. However, the repository should be prepared so Sprint 1 work is easy to track and demonstrate.
+A. Changes to make now (planning/setup)
+Repository Area	Recommended Change
+README.md	Add a short project summary, technology stack, user roles and current Sprint 1 goal/scope if this information is not already present.
+docs/sprint-1-plan.md (recommended)	Add a concise Markdown version of the Sprint 1 goal, selected stories (US1–US5), story points and Definition of Done. This is useful evidence but should not replace Trello.
+Branches	Agree on the team workflow. Keep the main branch stable and create feature branches for implementation rather than committing unfinished work directly to main.
+.gitignore	Ensure IDE/build outputs are ignored (for example .idea/, target/, out/). If SQLite database files are generated locally, ignore generated DB files unless the team intentionally versions a seed database.
+Tests structure	Confirm src/test/java exists so Sprint 1 features can be developed with tests alongside implementation.
+
+B. Recommended Sprint 1 feature branches
+Branch	Purpose
+feature/authentication	US1 Login and US2 Logout
+feature/user-management	US3 account creation/deletion and role-based access
+feature/vehicle-crud	US4 Create Vehicle and US5 Edit/Delete Vehicle
+
+C. Code changes to implement during Sprint 1
+Area	Sprint 1 Implementation
+User domain	User.java plus a Role enum (DRIVER / FLEET_MANAGER or team-agreed names).
+Authentication	Authentication service/interface for validating credentials and identifying the current role.
+Login/Logout UI	JavaFX Login view/controller plus logout navigation/session clearing.
+User management	Fleet-manager-only UI/controller for displaying, creating and deleting accounts.
+Vehicle domain	Vehicle.java with ID, registration, make, model, fuel type and odometer fields.
+Vehicle persistence	DAO/repository layer for create/read/update/delete. If the project uses SQLite, keep SQL/data access out of UI controllers.
+Vehicle UI	Vehicle list plus add/edit/delete forms/controllers.
+Validation	Duplicate registration validation, required-field validation and sensible odometer checks.
+Tests	Unit tests for authentication, role restrictions, account management and vehicle CRUD; use temporary/test data rather than production data.
+
+D. Suggested Git workflow
+1.  Pull the latest team branch before starting a story.
+2.  Create a feature branch for the story/feature.
+3.  Write or update tests with the feature where practical.
+4.  Make small, descriptive commits (for example: “Add credential validation tests”).
+5.  Push the feature branch to GitHub.
+6.  Open a pull request and have another team member review it if the team workflow uses PR reviews.
+7.  Merge only when the feature satisfies its acceptance criteria and relevant tests pass.
+8.  Move the corresponding Trello card through In Progress → Testing/Review → Done.
+
+“My responsibility was creating the Sprint 1 Plan. I reviewed our fourteen finalised user stories and analysed their dependencies. I selected User Stories 1 to 5 because authentication, user management and vehicle CRUD need to exist before driver assignment and fuel logging can be implemented. I broke each selected story into smaller development and testing tasks, assigned story-point and time estimates, identified dependencies and organised them for our Sprint 1 Trello list. Sprint 1 contains 22 story points and focuses on creating the core platform foundation.”
+
