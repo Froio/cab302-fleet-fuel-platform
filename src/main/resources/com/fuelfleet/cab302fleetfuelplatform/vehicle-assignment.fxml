@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.fuelfleet.cab302fleetfuelplatform.VehicleAssignmentController">
+    <top>
+        <VBox spacing="6">
+            <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
+            <Label text="Driver Assignments" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+            <Label text="Assign a Driver to a vehicle, change the current Driver, or leave it unassigned."/>
+        </VBox>
+    </top>
+    <center>
+        <HBox spacing="24">
+            <padding><Insets right="24" bottom="14" left="24"/></padding>
+            <TableView fx:id="assignmentTable" prefWidth="540" prefHeight="420">
+                <columns>
+                    <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="150"/>
+                    <TableColumn fx:id="vehicleColumn" text="Vehicle" prefWidth="210"/>
+                    <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="175"/>
+                </columns>
+            </TableView>
+            <VBox spacing="14" prefWidth="300" style="-fx-background-color:#f5f7fa; -fx-background-radius:8;">
+                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                <Label text="Update assignment" style="-fx-font-size:17px; -fx-font-weight:bold;"/>
+                <GridPane hgap="10" vgap="12">
+                    <Label text="Vehicle" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="vehicleCombo" promptText="Select vehicle" prefWidth="190" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <Label text="Driver" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="driverCombo" promptText="Select Driver" prefWidth="190" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Button text="Assign / Change Driver" onAction="#onAssign" maxWidth="Infinity"/>
+                <Button text="Unassign Vehicle" onAction="#onUnassign" maxWidth="Infinity"/>
+                <Label fx:id="statusLabel" wrapText="true" minHeight="55"/>
+            </VBox>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox>
+            <padding><Insets top="8" right="24" bottom="20" left="24"/></padding>
+            <Button text="Back to Dashboard" onAction="#onBack"/>
+        </HBox>
+    </bottom>
+</BorderPane>

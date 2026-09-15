@@ -5,38 +5,118 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 
-public class DBManager {
-    private static final String DB_DIR = "data";
-    private static final String DB_FILE = "data/fleet.db";
+public final class DBManager {
+    private static final Path DB_DIRECTORY = Path.of("data");
+    private static final String DEFAULT_URL = "jdbc:sqlite:data/fleet.db";
 
-    static {
-        try {
-            Path dir = Path.of(DB_DIR);
-            if (!Files.exists(dir)) Files.createDirectories(dir);
-            initialize();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private DBManager() {
     }
 
     public static Connection getConnection() throws SQLException {
-        String url = "jdbc:sqlite:" + DB_FILE;
-        return DriverManager.getConnection(url);
+        return provider(DEFAULT_URL).open();
     }
 
-    private static void initialize() {
-        try (Connection c = getConnection(); Statement s = c.createStatement()) {
-            // users table
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)");
-            // vehicles table
-            s.executeUpdate("CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration TEXT, make TEXT, model TEXT)");
+    public static ConnectionProvider provider(String jdbcUrl) {
+        return () -> {
+            Connection connection = DriverManager.getConnection(jdbcUrl);
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON");
+            }
+            return connection;
+        };
+    }
 
-            // ensure default admin exists
-            s.executeUpdate("INSERT OR IGNORE INTO users (id, username, password, role) VALUES (1, 'admin', 'password', 'manager')");
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public static void initialize() {
+        try {
+            Files.createDirectories(DB_DIRECTORY);
+            initialize(DBManager::getConnection);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Unable to initialize the fleet database", exception);
         }
     }
+
+    public static void initialize(ConnectionProvider connectionProvider) throws SQLException {
+        try (Connection connection = connectionProvider.open()) {
+            connection.setAutoCommit(false);
+            try {
+                createBaseTables(connection);
+                migrateVehicleColumns(connection);
+                createUniqueIndexes(connection);
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    private static void createBaseTables(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT NOT NULL,
+                        password TEXT NOT NULL,
+                        role TEXT NOT NULL
+                    )
+                    """);
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS vehicles (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        registration TEXT NOT NULL,
+                        make TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        fuel_type TEXT NOT NULL DEFAULT 'Unknown',
+                        current_odometer INTEGER NOT NULL DEFAULT 0 CHECK (current_odometer >= 0),
+                        assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL
+                    )
+                    """);
+        }
+    }
+
+    private static void migrateVehicleColumns(Connection connection) throws SQLException {
+        Set<String> columns = tableColumns(connection, "vehicles");
+        try (Statement statement = connection.createStatement()) {
+            if (!columns.contains("fuel_type")) {
+                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
+            }
+            if (!columns.contains("current_odometer")) {
+                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN current_odometer INTEGER NOT NULL DEFAULT 0 CHECK (current_odometer >= 0)");
+            }
+            if (!columns.contains("assigned_driver_id")) {
+                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL");
+            }
+            statement.executeUpdate("UPDATE vehicles SET fuel_type = 'Unknown' WHERE fuel_type IS NULL OR TRIM(fuel_type) = ''");
+            statement.executeUpdate("UPDATE vehicles SET current_odometer = 0 WHERE current_odometer IS NULL OR current_odometer < 0");
+            statement.executeUpdate("UPDATE users SET role = 'driver' WHERE role IS NULL OR TRIM(role) = ''");
+        }
+    }
+
+    private static Set<String> tableColumns(Connection connection, String tableName) throws SQLException {
+        Set<String> columns = new HashSet<>();
+        try (Statement statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery("PRAGMA table_info(" + tableName + ")")) {
+            while (rows.next()) {
+                columns.add(rows.getString("name"));
+            }
+        }
+        return columns;
+    }
+
+    private static void createUniqueIndexes(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS ux_users_username_nocase "
+                    + "ON users(username COLLATE NOCASE)");
+            statement.executeUpdate("CREATE UNIQUE INDEX IF NOT EXISTS ux_vehicles_registration_nocase "
+                    + "ON vehicles(registration COLLATE NOCASE)");
+        }
+    }
+
 }
