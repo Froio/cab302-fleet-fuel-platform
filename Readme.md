@@ -1,38 +1,22 @@
-# Fuel & Fleet Efficiency Platform
+ROLES (rough, can swap around):
+1. Team Lead / Coordinator – deadlines, checkpoints, keeps us on track
+2. Backend/Auth Dev – login, roles/permissions, user accounts
+3. Vehicle & Fleet Dev – vehicle records, driver assignment
+4. Fuel & Efficiency Dev – fuel logging, L/100km + cost calcs
+5. Emissions & UI/Testing – CO2 tracking, frontend polish, testing
 
-A CAB302 group project built for the "technology for change" theme, focused on fuel efficiency, cost tracking, and emissions awareness for personal and fleet vehicles.
+GIT WORKFLOW (everyone needs individual commits — tutor's checking this):
+1. Clone: git clone https://github.com/Froio/cab302-fleet-fuel-platform.git
+2. Set your name/email:
+   git config --global user.name "Your Name"
+   git config --global user.email "your-github-email@example.com"
+3. New branch per feature: git checkout -b yourname-feature
+4. Commit your own work: git add . / git commit -m "message"
+5. Push: git push origin yourname-feature
+6. Open a Pull Request into main, get it reviewed
 
-## Overview
+PM TOOL: GitHub Projects (built into repo, no extra login) — will set up board w/ columns: To Do / In Progress / Review / Done
 
-Users log fuel fill-ups (litres, cost, odometer reading) against their vehicles. The system then calculates:
-
-- Fuel efficiency (L/100km)
-- Cost per fill-up and cost per km
-- Estimated CO2 emissions per log and over time
-- Alerts when efficiency drops significantly compared to a vehicle's average
-
-The platform supports two roles:
-
-- **Driver** — logs fuel fill-ups, views their own vehicle's efficiency, cost, and emissions history, exports logs to CSV.
-- **Fleet Manager** — manages user accounts, creates and edits vehicle records, assigns drivers to vehicles, and views fleet-wide reports on cost, efficiency, and emissions.
-
-## Tech Stack
-
-- **Java** — core application logic
-- **JavaFX** — GUI, including chart components for efficiency/cost/emissions trends
-- **SQLite** — local data persistence
-- **Maven** — build and dependency management
-
-## Project Structure
-
-- `src/main` — application source code
-- `pom.xml` — Maven project configuration and dependencies
-- `mvnw` / `mvnw.cmd` — Maven wrapper scripts for consistent builds across machines
-
-## Status
-
-Currently in the Inception & Setup phase (Checkpoint 1): requirements and user stories drafted, repository set up, team roles being finalised.
-
-## Team
-
-Group project for CAB302 — Software Development Studio 1, QUT.
+NEXT STEPS:
+- Everyone clone + set up git config today
+- Pick your role
