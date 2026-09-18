@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="com.fuelfleet.cab302fleetfuelplatform.ReportsController">
+ <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+ <HBox spacing="20" alignment="CENTER_LEFT"><Button text="Back" onAction="#onBack"/><Label text="Fleet reports" style="-fx-font-size:24px;-fx-font-weight:bold;"/></HBox>
+ <FlowPane hgap="8" vgap="8">
+  <Label text="Vehicle"/><ComboBox fx:id="vehicle" promptText="All vehicles" prefWidth="230"/>
+  <Button text="All vehicles" onAction="#onAllVehicles"/>
+  <Label text="From"/><DatePicker fx:id="fromDate" prefWidth="140"/>
+  <Label text="To"/><DatePicker fx:id="toDate" prefWidth="140"/>
+  <Button text="Apply / Refresh" onAction="#onRefresh"/>
+ </FlowPane>
+ <Label fx:id="summary" wrapText="true" minHeight="-Infinity" style="-fx-font-weight:bold;"/>
+ <Label fx:id="status" wrapText="true" minHeight="-Infinity"/>
+ <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+  <tabs>
+   <Tab text="Fuel cost"><LineChart fx:id="costChart" title="Monthly fuel expenditure" animated="false" legendVisible="false"><xAxis><CategoryAxis label="Month (YYYY-MM)"/></xAxis><yAxis><NumberAxis label="Cost (AUD)" forceZeroInRange="true"/></yAxis></LineChart></Tab>
+   <Tab text="Estimated emissions"><LineChart fx:id="emissionsChart" title="Monthly estimated tailpipe CO₂" animated="false" legendVisible="false"><xAxis><CategoryAxis label="Month (YYYY-MM)"/></xAxis><yAxis><NumberAxis label="Estimated CO₂ (kg)" forceZeroInRange="true"/></yAxis></LineChart></Tab>
+   <Tab text="Fuel efficiency"><LineChart fx:id="efficiencyChart" title="Full-tank interval efficiency" animated="false" legendVisible="false"><xAxis><CategoryAxis label="Interval ending month (YYYY-MM)"/></xAxis><yAxis><NumberAxis label="Fuel efficiency (L/100 km)" forceZeroInRange="true"/></yAxis></LineChart></Tab>
+  </tabs>
+ </TabPane>
+ <Label wrapText="true" minHeight="-Infinity" text="Estimates use recorded litres as a proxy for consumption. EPA factors: petrol 8.887 kg / US gallon; diesel 10.180 kg / US gallon (3.785411784 L). Tailpipe CO₂ only; excludes upstream emissions and other gases."/>
+ <Label wrapText="true" minHeight="-Infinity" text="Efficiency assumes every fill-up is logged and full-tank markers are accurate. Intervals are assigned to their ending month; they may start before the selected period. Missing values are unavailable, not zero."/>
+</VBox>

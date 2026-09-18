@@ -32,7 +32,7 @@ public class ManagerDashboardController {
 
     @FXML
     private void onReports() {
-        infoLabel.setText("Reports view not implemented yet.");
+        HelloApplication.switchScene("reports.fxml");
     }
 
     @FXML

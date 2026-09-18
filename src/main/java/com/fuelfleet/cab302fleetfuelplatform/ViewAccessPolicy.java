@@ -14,7 +14,8 @@ final class ViewAccessPolicy {
             "user-management.fxml",
             "vehicle-list.fxml",
             "vehicle-edit.fxml",
-            "vehicle-assignment.fxml"
+            "vehicle-assignment.fxml",
+            "reports.fxml"
     );
 
     private ViewAccessPolicy() {
