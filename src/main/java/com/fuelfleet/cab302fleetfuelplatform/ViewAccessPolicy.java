@@ -8,7 +8,10 @@ import java.util.Set;
 
 final class ViewAccessPolicy {
     private static final String LOGIN_VIEW = "login-view.fxml";
-    private static final String DRIVER_VIEW = "driver-dashboard.fxml";
+    private static final Set<String> DRIVER_VIEWS = Set.of(
+            "driver-dashboard.fxml",
+            "fuel-logging.fxml"
+    );
     private static final Set<String> MANAGER_VIEWS = Set.of(
             "manager-dashboard.fxml",
             "user-management.fxml",
@@ -31,7 +34,7 @@ final class ViewAccessPolicy {
                     .map(user -> requestedView)
                     .orElse(LOGIN_VIEW);
         }
-        if (DRIVER_VIEW.equals(requestedView)) {
+        if (DRIVER_VIEWS.contains(requestedView)) {
             return currentUser.filter(user -> user.role() == Role.DRIVER)
                     .map(user -> requestedView)
                     .orElse(LOGIN_VIEW);
@@ -39,4 +42,3 @@ final class ViewAccessPolicy {
         return requestedView;
     }
 }
-

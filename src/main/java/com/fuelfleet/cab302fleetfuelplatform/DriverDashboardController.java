@@ -65,6 +65,11 @@ public class DriverDashboardController {
     }
 
     @FXML
+    private void onAddFuelLog() {
+        HelloApplication.switchScene("fuel-logging.fxml");
+    }
+
+    @FXML
     private void onLogout() {
         session.signOut();
         HelloApplication.switchScene("login-view.fxml");

@@ -65,7 +65,9 @@ public final class AnalyticsService {
             Accumulator a = entry.getValue();
             for (double value : new double[]{a.litres,a.cost,a.co2,a.distance,a.intervalLitres})
                 if (!Double.isFinite(value)) throw new IllegalArgumentException("Report totals exceed supported range");
-            double rate = a.distance > 0 ? a.intervalLitres / a.distance * 100 : Double.NaN;
+            double rate = a.distance > 0
+                    ? FuelCalculations.litresPer100KmForDistance(a.intervalLitres, a.distance)
+                    : Double.NaN;
             if (Double.isInfinite(rate)) throw new IllegalArgumentException("Efficiency exceeds supported range");
             return new Month(entry.getKey(),a.litres,a.cost,a.co2,a.unestimated,
                     Double.isNaN(rate) ? OptionalDouble.empty() : OptionalDouble.of(rate));

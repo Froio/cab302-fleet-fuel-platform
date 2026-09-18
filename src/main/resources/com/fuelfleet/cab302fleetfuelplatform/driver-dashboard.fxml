@@ -34,8 +34,9 @@
         </VBox>
     </center>
     <bottom>
-        <HBox alignment="CENTER_RIGHT">
+        <HBox alignment="CENTER_RIGHT" spacing="10">
             <padding><Insets top="10" right="24" bottom="20" left="24"/></padding>
+            <Button text="Add Fuel Log" onAction="#onAddFuelLog" prefWidth="130"/>
             <Button text="Logout" onAction="#onLogout" prefWidth="100"/>
         </HBox>
     </bottom>
