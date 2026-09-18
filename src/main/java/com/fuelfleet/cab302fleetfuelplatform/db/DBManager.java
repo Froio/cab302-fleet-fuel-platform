@@ -46,6 +46,7 @@ public final class DBManager {
             try {
                 createBaseTables(connection);
                 migrateVehicleColumns(connection);
+                createFuelLogs(connection);
                 createUniqueIndexes(connection);
                 connection.commit();
             } catch (SQLException exception) {
@@ -78,6 +79,29 @@ public final class DBManager {
                         assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL
                     )
                     """);
+        }
+    }
+
+    private static void createFuelLogs(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS fuel_logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+                        date TEXT NOT NULL,
+                        litres REAL NOT NULL CHECK (litres > 0),
+                        cost REAL NOT NULL CHECK (cost >= 0),
+                        odometer REAL NOT NULL CHECK (odometer >= 0),
+                        fuel_type TEXT NOT NULL DEFAULT 'Unknown',
+                        full_tank INTEGER NOT NULL DEFAULT 0 CHECK (full_tank IN (0,1))
+                    )
+                    """);
+            Set<String> columns = tableColumns(connection, "fuel_logs");
+            if (!columns.contains("fuel_type"))
+                statement.executeUpdate("ALTER TABLE fuel_logs ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
+            if (!columns.contains("full_tank"))
+                statement.executeUpdate("ALTER TABLE fuel_logs ADD COLUMN full_tank INTEGER NOT NULL DEFAULT 0 CHECK (full_tank IN (0,1))");
+            statement.executeUpdate("CREATE INDEX IF NOT EXISTS ix_fuel_logs_vehicle_date ON fuel_logs(vehicle_id, date)");
         }
     }
 
