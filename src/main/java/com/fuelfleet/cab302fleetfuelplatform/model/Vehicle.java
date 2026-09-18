@@ -1,26 +1,48 @@
 package com.fuelfleet.cab302fleetfuelplatform.model;
 
-public class Vehicle {
-    private int id;
-    private String registration;
-    private String make;
-    private String model;
+import java.util.Locale;
 
-    public Vehicle() {}
-
-    public Vehicle(int id, String registration, String make, String model) {
-        this.id = id;
-        this.registration = registration;
-        this.make = make;
-        this.model = model;
+public record Vehicle(
+        int id,
+        String registration,
+        String make,
+        String model,
+        String fuelType,
+        long currentOdometer,
+        Integer assignedDriverId,
+        String assignedDriverUsername
+) {
+    public Vehicle {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Vehicle ID must be positive");
+        }
+        registration = required(registration, "Registration").toUpperCase(Locale.ROOT);
+        make = required(make, "Make");
+        model = required(model, "Model");
+        fuelType = required(fuelType, "Fuel type");
+        if (currentOdometer < 0) {
+            throw new IllegalArgumentException("Current odometer cannot be negative");
+        }
+        if (assignedDriverUsername != null) {
+            assignedDriverUsername = assignedDriverUsername.trim();
+        }
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getRegistration() { return registration; }
-    public void setRegistration(String registration) { this.registration = registration; }
-    public String getMake() { return make; }
-    public void setMake(String make) { this.make = make; }
-    public String getModel() { return model; }
-    public void setModel(String model) { this.model = model; }
+    public String assignedDriverDisplay() {
+        return assignedDriverUsername == null || assignedDriverUsername.isBlank()
+                ? "Unassigned"
+                : assignedDriverUsername;
+    }
+
+    @Override
+    public String toString() {
+        return registration + " - " + make + " " + model;
+    }
+
+    private static String required(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " is required");
+        }
+        return value.trim();
+    }
 }

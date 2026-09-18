@@ -7,4 +7,5 @@ module com.fuelfleet.cab302fleetfuelplatform {
 
     opens com.fuelfleet.cab302fleetfuelplatform to javafx.fxml;
     exports com.fuelfleet.cab302fleetfuelplatform;
+    exports com.fuelfleet.cab302fleetfuelplatform.model;
 }

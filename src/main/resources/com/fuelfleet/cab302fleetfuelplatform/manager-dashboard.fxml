@@ -12,11 +12,14 @@
     <Insets top="20" right="20" bottom="20" left="20"/>
   </padding>
 
-  <Label text="Manager Dashboard" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
-  <HBox spacing="10">
-    <Button text="Vehicles" onAction="#onVehicles" />
-    <Button text="Reports" onAction="#onReports" />
-    <Button text="Logout" onAction="#onLogout" />
+  <Label text="Fleet Manager Dashboard" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+  <Label text="Manage fleet users, vehicles, and driver assignments." />
+  <HBox spacing="10" alignment="CENTER">
+    <Button text="Users" onAction="#onUsers" prefWidth="130" />
+    <Button text="Vehicles" onAction="#onVehicles" prefWidth="130" />
+    <Button text="Assignments" onAction="#onAssignments" prefWidth="130" />
+    <Button text="Reports" onAction="#onReports" prefWidth="130" />
+    <Button text="Logout" onAction="#onLogout" prefWidth="100" />
   </HBox>
 
   <Label fx:id="infoLabel" />
