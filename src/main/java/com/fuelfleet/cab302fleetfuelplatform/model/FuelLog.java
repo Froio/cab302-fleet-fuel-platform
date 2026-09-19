@@ -23,6 +23,9 @@ public record FuelLog(
         }
         vehicleRegistration = required(vehicleRegistration, "Vehicle registration");
         date = Objects.requireNonNull(date, "Date is required");
+        if (date.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date cannot be in the future");
+        }
         if (!Double.isFinite(litres) || litres <= 0) {
             throw new IllegalArgumentException("Litres must be a positive finite value");
         }
