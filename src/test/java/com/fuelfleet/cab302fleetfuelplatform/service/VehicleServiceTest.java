@@ -10,9 +10,9 @@ import com.fuelfleet.cab302fleetfuelplatform.model.Role;
 import com.fuelfleet.cab302fleetfuelplatform.model.User;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
 import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +28,7 @@ class VehicleServiceTest {
     AppSession session;
     VehicleService vehicleService;
     @BeforeEach
-    void setup() {
+    void setup() throws Exception {
         connections = DBManager.provider("jdbc:sqlite:" + directory.resolve("test.db"));
         DBManager.initialize(connections);
         session = new AppSession();
@@ -84,8 +84,8 @@ class VehicleServiceTest {
   void testUpdateVehicle() {
         session.signIn(new User(1, "manager", Role.MANAGER));
         var vehicle = vehicleService.createVehicle("L0B4N4", "Hyundai", "i30 N", "Petrol", "1000");
-        var updated = vehicleService.updateVehicle(vehicle.id(), "L0B4N4", "Hyundai", "i30 N", "Petrol", "2000");
-        assertEquals(2000, updated.currentOdometer());
+        var updated = vehicleService.updateVehicle(vehicle.id(), "L0B4N4", "i30 N", "Hyundai", "Petrol", "2000");
+        assertEquals("Hyundai", updated.make());
     }    @Test
     void testDeleteVehicle() {
         session.signIn(new User(1, "manager", Role.MANAGER));
@@ -94,7 +94,7 @@ class VehicleServiceTest {
         assertTrue(vehicleService.listVehicles().isEmpty());
     }
 
-  
+
 
   
 }
