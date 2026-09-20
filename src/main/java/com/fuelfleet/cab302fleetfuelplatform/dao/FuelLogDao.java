@@ -80,6 +80,21 @@ public final class FuelLogDao {
         }
     }
 
+    // US18 - remove a single fuel log entry
+    public boolean deleteFuelLog(int logId) {
+        if (logId <= 0) {
+            throw new ValidationException("Fuel log ID must be positive");
+        }
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(
+                     "DELETE FROM fuel_logs WHERE id = ?")) {
+            statement.setInt(1, logId);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException exception) {
+            throw new DataAccessException("Unable to delete fuel log", exception);
+        }
+    }
+
     public FuelLog save(
             int vehicleId,
             LocalDate date,
