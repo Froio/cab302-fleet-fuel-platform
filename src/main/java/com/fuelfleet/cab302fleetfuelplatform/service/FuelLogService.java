@@ -93,6 +93,28 @@ public final class FuelLogService {
                 vehicle.fuelType(), fullTank);
     }
 
+    public String exportHistoryToCsv() {
+        List<FuelHistoryEntry> history = listHistory();
+        StringBuilder csv = new StringBuilder();
+        csv.append("Date,Vehicle,Litres,Cost,Odometer,Efficiency (L/100km)\n");
+
+        for (FuelHistoryEntry entry : history) {
+            FuelLog log = entry.log();
+            String efficiency = entry.litresPer100Km().isPresent()
+                    ? String.format("%.2f", entry.litresPer100Km().getAsDouble())
+                    : "N/A";
+
+            csv.append(log.date()).append(",");
+            csv.append(log.vehicleRegistration()).append(",");
+            csv.append(log.litres()).append(",");
+            csv.append(log.cost()).append(",");
+            csv.append(log.odometer()).append(",");
+            csv.append(efficiency).append("\n");
+        }
+
+        return csv.toString();
+    }
+
     private User requireDriver() {
         User currentUser = session.currentUser().orElseThrow(
                 () -> new AuthorizationException("Please sign in as a driver."));
