@@ -84,7 +84,7 @@ class VehicleServiceTest {
   void testUpdateVehicle() {
         session.signIn(new User(1, "manager", Role.MANAGER));
         var vehicle = vehicleService.createVehicle("L0B4N4", "Hyundai", "i30 N", "Petrol", "1000");
-        var updated = vehicleService.updateVehicle(vehicle.id(), "L0B4N4", "i30 N", "Hyundai", "Petrol", "2000");
+        var updated = vehicleService.updateVehicle(vehicle.id(), "L0B4N4", "Hyundai", "i30 N", "Petrol", "2000");
         assertEquals("Hyundai", updated.make());
     }    @Test
     void testDeleteVehicle() {
