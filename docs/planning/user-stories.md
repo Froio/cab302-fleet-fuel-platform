@@ -226,3 +226,93 @@ incorrect records are not stored.
 - Errors identify what must be corrected.
 - Invalid records are not persisted.
 - Corrected data can subsequently be submitted.
+
+---
+
+## US15 — View All Divers 
+**Priority:** High
+
+**Story:**  
+As a Fleet Manager, I want the ability to see a list of all drivers within the system so I can see available drivers to assign to vehicles.
+
+**Acceptance criteria**
+- Each driver shows their name
+- Each driver shows their current vehicle status
+- All driver accounts registered are displayed
+- Drivers marked either assigned or unassigned
+- List updates when a driver is changed to assigned or unassigned
+- Fleet manager only has access to full driver list 
+
+---
+
+## US16 — Update User Profile 
+**Priority:** Medium
+
+**Story:**  
+As a User, ability to update my details on my personal profile so my account details are up to date.
+
+**Acceptance criteria**
+- The editing screen for profile updating is accessible after login
+- Current details of name, contact and email are displayed for the user
+- Ability to update name
+- Ability to update contact email
+- Changes can be saved
+- Invalid email is rejected with a useful error message
+- Saved changes are updated and reflected immediately
+- Details remain saved after logout and login 
+
+---
+
+
+## US17 — View Unassigned Vechiles 
+**Priority:** High
+
+**Story:**  
+As a fleet manager, I want to see which vehicles are unassigned so I can know which vehicles can be allocated to drivers.
+
+
+**Acceptance criteria**
+- Vehicle list can be filtered to see only unassigned vehicles
+- Unassigned Vehicles are clearly marked from assigned vehicles
+- Each vehicle displays information such as registration, make, model and ID of vehicle
+- Vehicle is no longer seen under unassigned after being assigned to a driver
+- If assignment is removed, the vehicle becomes unassigned again
+- List reflects information of latest assignments stored in the system
+
+---
+
+## US18 — Delete Fuel Log Entry 
+**Priority:** Medium
+
+**Story:**  
+As a driver. I want to delete a fuel log entry if entered incorrectly so the history remains accurate.
+
+**Acceptance criteria**
+- Option to delete an individual fuel log entry is available
+- Confirmation prompt displays before deletion of entry
+- Cancelling confirmation request leaves the fuel log unchanged
+- Confirming confirmation request removes fuel log from storage
+- deleted entry is removed from fuel history
+- Fuel efficiency calculations no longer include deleted entries
+- Cost calculations do not include deleted entries 
+
+---
+
+## US19 — Validate User Input
+**Priority:** Medium
+
+**Story:** 
+As a fleet manager, I want to see which date specific vehicles were added to the fleet to be able to track how long the vehicle has been in service 
+
+**Acceptance criteria**
+
+- Date added is automatically recorded at creation of vehicle
+- Date is not manually entered by fleet manager
+- Date is stored with vehicle records
+- Date is visible in the details of the vehicle
+- Date remains unchanged when other vehicle dates are edited
+- Date remains after application is closed and reopened 
+
+---
+
+
