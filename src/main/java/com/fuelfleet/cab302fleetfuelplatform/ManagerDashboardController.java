@@ -36,6 +36,11 @@ public class ManagerDashboardController {
     }
 
     @FXML
+    private void onUnassigned() {
+        HelloApplication.switchScene("unassigned-vehicles.fxml");
+    }
+
+    @FXML
     private void onReports() {
         HelloApplication.switchScene("reports.fxml");
     }
