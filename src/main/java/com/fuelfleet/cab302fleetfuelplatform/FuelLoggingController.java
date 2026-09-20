@@ -18,7 +18,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -84,6 +89,10 @@ public final class FuelLoggingController {
         this.injectedForm = injectedForm;
     }
 
+
+
+    
+
     @FXML
     void initialize() {
         FormAccess form = form();
@@ -139,10 +148,46 @@ public final class FuelLoggingController {
     }
 
     @FXML
+    void onExportCsv() {
+        String csvContent;
+        try {
+
+            csvContent = operations.exportHistoryToCsv();
+        } catch (AuthorizationException exception) {
+            returnToLogin();
+            return;
+        } catch (DataAccessException exception) {
+            form().setStatus("Export failed: " + exception.getMessage());
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialFileName("fuel_history.csv");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        Window window = statusLabel.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(window);
+
+        if (file == null) {
+            return;
+        }
+
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(csvContent);
+            form().setStatus("Fuel history exported to " + file.getName());
+        } catch (IOException exception) {
+            form().setStatus("Export failed: " + exception.getMessage());
+        }
+    }
+
+    @FXML
     private void onBack() {
         sceneSwitcher.accept("driver-dashboard.fxml");
     }
 
+
+
+    
     private void configureHistoryTable() {
         dateColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
                 row.getValue().log().date().toString()));
@@ -152,6 +197,7 @@ public final class FuelLoggingController {
                 String.format(Locale.ROOT, "%,.2f", row.getValue().log().litres())));
         costColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
                 String.format(Locale.ROOT, "$%,.2f", row.getValue().log().cost())));
+        
         odometerColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
                 String.format(Locale.ROOT, "%,.0f", row.getValue().log().odometer())));
         efficiencyColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
@@ -189,6 +235,8 @@ public final class FuelLoggingController {
             form.setTotalCost(String.format(Locale.ROOT, "$%,.2f", cost));
         } catch (IllegalArgumentException exception) {
             form.setTotalCost("—");
+
+            
         }
     }
 
@@ -200,12 +248,10 @@ public final class FuelLoggingController {
         session.signOut();
         sceneSwitcher.accept("login-view.fxml");
     }
-
     interface FuelLogOperations {
         List<Vehicle> listAssignedVehicles();
 
         List<FuelHistoryEntry> listHistory();
-
         void save(
                 int vehicleId,
                 LocalDate date,
@@ -214,6 +260,7 @@ public final class FuelLoggingController {
                 String odometer,
                 boolean fullTank
         );
+        String exportHistoryToCsv();
     }
 
     interface FormAccess {
@@ -226,9 +273,7 @@ public final class FuelLoggingController {
         String litres();
 
         String pricePerLitre();
-
         String odometer();
-
         boolean fullTank();
 
         void setTotalCost(String totalCost);
@@ -279,6 +324,11 @@ public final class FuelLoggingController {
         ) {
             service.save(vehicleId, date, litres, pricePerLitre, odometer, fullTank);
         }
+
+        @Override
+        public String exportHistoryToCsv() {
+            return service.exportHistoryToCsv();
+        }
     }
 
     private final class JavaFxForm implements FormAccess {
@@ -320,9 +370,7 @@ public final class FuelLoggingController {
         @Override
         public void setTotalCost(String totalCost) {
             totalCostLabel.setText(totalCost);
-        }
-
-        @Override
+        }        @Override
         public void showData(ScreenData screenData) {
             historyTable.setItems(FXCollections.observableArrayList(screenData.history()));
             vehicleComboBox.setItems(FXCollections.observableArrayList(screenData.vehicles()));
