@@ -45,7 +45,7 @@ class VehicleServiceTest {
         var vehicle = vehicleService.createVehicle("L0B4N4", "Hyundai", "i30 N", "Petrol", "1000");
         assertEquals("L0B4N4", vehicle.registration());
     }    @Test
-    void testCreateVehicleNoLoginThrowsError() 
+    void testCreateVehicleNoLoginThrowsError() {
         assertThrows(AuthorizationException.class, () -> {
         vehicleService.createVehicle("L0B4N4", "Hyundai", "i30 N", "Petrol", "1000");
         });
