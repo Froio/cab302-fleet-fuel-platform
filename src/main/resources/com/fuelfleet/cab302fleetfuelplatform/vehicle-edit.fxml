@@ -9,27 +9,33 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
+<VBox xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
       fx:controller="com.fuelfleet.cab302fleetfuelplatform.VehicleEditController"
-      alignment="TOP_CENTER" spacing="18">
-  <padding><Insets top="28" right="40" bottom="28" left="40"/></padding>
-  <Label fx:id="titleLabel" text="Register a Vehicle" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-  <Label fx:id="formDescriptionLabel" text="All fields are required. Registration numbers must be unique."/>
-  <GridPane hgap="14" vgap="14" maxWidth="520">
-    <Label text="Registration" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-    <TextField fx:id="regField" promptText="e.g. 123 ABC" prefWidth="300" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-    <Label text="Make" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-    <TextField fx:id="makeField" promptText="e.g. Toyota" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-    <Label text="Model" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-    <TextField fx:id="modelField" promptText="e.g. Corolla" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-    <Label text="Fuel Type" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-    <ComboBox fx:id="fuelTypeCombo" promptText="Select or enter fuel type" prefWidth="300" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-    <Label text="Current Odometer" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-    <TextField fx:id="odometerField" promptText="Whole number" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-  </GridPane>
-  <Label fx:id="statusLabel" wrapText="true" maxWidth="520"/>
-  <HBox spacing="12" alignment="CENTER_RIGHT" maxWidth="520">
-    <Button text="Cancel" onAction="#onCancel"/>
-    <Button fx:id="saveButton" text="Save Vehicle" onAction="#onSave"/>
-  </HBox>
+      alignment="TOP_CENTER" spacing="22">
+  <padding><Insets top="32" right="40" bottom="32" left="40"/></padding>
+  <VBox spacing="6" maxWidth="650" alignment="CENTER_LEFT">
+    <Label text="VEHICLE DETAILS" styleClass="eyebrow"/>
+    <Label fx:id="titleLabel" text="Register a Vehicle" styleClass="page-title"/>
+    <Label fx:id="formDescriptionLabel" text="All fields are required. Registration numbers must be unique." styleClass="page-subtitle"/>
+  </VBox>
+  <VBox spacing="18" maxWidth="650" styleClass="content-card">
+    <Label text="Vehicle information" styleClass="section-title"/>
+    <GridPane hgap="14" vgap="14" maxWidth="600">
+      <Label text="Registration" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+      <TextField fx:id="regField" promptText="e.g. 123 ABC" prefWidth="300" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+      <Label text="Make" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+      <TextField fx:id="makeField" promptText="e.g. Toyota" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+      <Label text="Model" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+      <TextField fx:id="modelField" promptText="e.g. Corolla" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+      <Label text="Fuel Type" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+      <ComboBox fx:id="fuelTypeCombo" promptText="Select or enter fuel type" prefWidth="300" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+      <Label text="Current Odometer" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+      <TextField fx:id="odometerField" promptText="Whole number" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+    <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+      <Button text="Cancel" onAction="#onCancel"/>
+      <Button fx:id="saveButton" text="Save vehicle" onAction="#onSave" styleClass="primary-button"/>
+    </HBox>
+  </VBox>
 </VBox>

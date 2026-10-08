@@ -9,18 +9,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.DriverDashboardController">
     <top>
-        <VBox spacing="6">
-            <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
-            <Label fx:id="welcomeLabel" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-            <Label text="Your assigned vehicles" style="-fx-font-size:15px;"/>
+        <VBox spacing="6" styleClass="top-bar">
+            <Label text="YOUR WORKSPACE" styleClass="eyebrow"/>
+            <Label fx:id="welcomeLabel" styleClass="page-title"/>
+            <Label text="Your assigned vehicles are listed below." styleClass="page-subtitle"/>
         </VBox>
     </top>
     <center>
         <VBox spacing="10">
-            <padding><Insets right="24" bottom="16" left="24"/></padding>
+            <padding><Insets top="18" right="30" bottom="16" left="30"/></padding>
+            <Label text="Assigned vehicles" styleClass="section-title"/>
             <TableView fx:id="vehicleTable" prefHeight="430">
                 <columns>
                     <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="150"/>
@@ -30,14 +31,14 @@
                     <TableColumn fx:id="odometerColumn" text="Current Odometer" prefWidth="170"/>
                 </columns>
             </TableView>
-            <Label fx:id="statusLabel" textFill="#555555"/>
+            <Label fx:id="statusLabel" styleClass="status-text"/>
         </VBox>
     </center>
     <bottom>
-        <HBox alignment="CENTER_RIGHT" spacing="10">
-            <padding><Insets top="10" right="24" bottom="20" left="24"/></padding>
-            <Button text="Add Fuel Log" onAction="#onAddFuelLog" prefWidth="130"/>
-            <Button text="Logout" onAction="#onLogout" prefWidth="100"/>
+        <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="action-row">
+            <padding><Insets top="10" right="30" bottom="24" left="30"/></padding>
+            <Button text="Sign out" onAction="#onLogout"/>
+            <Button text="+ Add fuel log" onAction="#onAddFuelLog" styleClass="primary-button"/>
         </HBox>
     </bottom>
 </BorderPane>

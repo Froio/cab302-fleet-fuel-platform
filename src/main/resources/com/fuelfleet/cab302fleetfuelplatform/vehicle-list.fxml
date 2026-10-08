@@ -9,18 +9,21 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.VehicleListController">
   <top>
-    <VBox spacing="6">
-      <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
-      <Label text="Vehicle Management" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-      <Label text="Register vehicles, review fleet details, and remove records."/>
-    </VBox>
+    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-bar">
+      <VBox spacing="5" HBox.hgrow="ALWAYS">
+        <Label text="FLEET DIRECTORY" styleClass="eyebrow"/>
+        <Label text="Vehicles" styleClass="page-title"/>
+        <Label text="Register vehicles, review fleet details, and remove records." styleClass="page-subtitle"/>
+      </VBox>
+      <Button text="+ Add vehicle" onAction="#onAdd" styleClass="primary-button"/>
+    </HBox>
   </top>
   <center>
     <VBox spacing="10">
-      <padding><Insets right="24" bottom="12" left="24"/></padding>
+      <padding><Insets top="18" right="30" bottom="12" left="30"/></padding>
       <TableView fx:id="vehicleTable" prefHeight="430">
         <columns>
           <TableColumn fx:id="idColumn" text="ID" prefWidth="55"/>
@@ -32,17 +35,16 @@
           <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="180"/>
         </columns>
       </TableView>
-      <Label fx:id="statusLabel" wrapText="true"/>
+      <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
     </VBox>
   </center>
   <bottom>
     <HBox spacing="10" alignment="CENTER_RIGHT">
-      <padding><Insets top="8" right="24" bottom="20" left="24"/></padding>
-      <Button text="Back to Dashboard" onAction="#onBack"/>
+      <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+      <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
       <Button text="Assignments" onAction="#onAssignments"/>
       <Button text="Delete Selected" onAction="#onDelete"/>
-      <Button text="Edit Selected" onAction="#onEdit"/>
-      <Button text="Add Vehicle" onAction="#onAdd"/>
+      <Button text="Edit selected" onAction="#onEdit" styleClass="primary-button"/>
     </HBox>
   </bottom>
 </BorderPane>

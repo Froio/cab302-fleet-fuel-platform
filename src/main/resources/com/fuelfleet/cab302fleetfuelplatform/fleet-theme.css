@@ -1,0 +1,107 @@
+.root {
+    -fx-font-family: "Arial";
+    -fx-font-size: 13px;
+    -fx-text-fill: #242424;
+    -fx-background-color: #fafaf9;
+}
+
+.app-root { -fx-background-color: #fafaf9; }
+.scroll-pane.app-root { -fx-background-color: #fafaf9; -fx-border-color: transparent; }
+.scroll-pane.app-root .viewport { -fx-background-color: #fafaf9; }
+.auth-root { -fx-background-color: #f3f3f1; }
+.scroll-pane.auth-root .viewport { -fx-background-color: #f3f3f1; }
+.scroll-pane.form-scroll, .scroll-pane.form-scroll .viewport { -fx-background-color: transparent; -fx-border-color: transparent; }
+.page-content { -fx-padding: 28 30 28 30; }
+.page-header { -fx-padding: 0 0 18 0; }
+.page-title { -fx-font-size: 29px; -fx-font-weight: bold; -fx-text-fill: #202020; }
+.page-subtitle { -fx-font-size: 13px; -fx-text-fill: #6b6b6b; }
+.eyebrow { -fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #777777; }
+.section-title { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #292929; }
+.muted-text { -fx-text-fill: #777777; }
+.status-text { -fx-text-fill: #555555; -fx-wrap-text: true; }
+.brand-title { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #242424; }
+.sidebar { -fx-padding: 24 12; -fx-background-color: #f6f6f4; -fx-border-color: transparent #dededb transparent transparent; -fx-border-width: 0 1 0 0; }
+.sidebar .brand-title { -fx-padding: 0 12 24 12; }
+.sidebar .eyebrow { -fx-padding: 12 12 6 12; }
+
+.auth-card, .content-card, .metric-card {
+    -fx-background-color: white;
+    -fx-background-radius: 9;
+    -fx-border-color: #dededb;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+}
+.auth-card { -fx-padding: 30; -fx-max-width: 430; }
+.content-card { -fx-padding: 20; }
+.metric-card { -fx-padding: 18; }
+.form-card { -fx-max-width: 650; }
+.side-card { -fx-pref-width: 300; }
+.soft-panel { -fx-background-color: #f6f6f4; -fx-background-radius: 6; -fx-padding: 12; }
+.divider { -fx-background-color: #e8e8e5; -fx-min-height: 1; -fx-max-height: 1; }
+.top-bar { -fx-padding: 15 30; -fx-background-color: #fafaf9; -fx-border-color: transparent transparent #e5e5e2 transparent; -fx-border-width: 0 0 1 0; }
+.toolbar { -fx-spacing: 10; -fx-alignment: CENTER_LEFT; }
+.action-row { -fx-spacing: 9; -fx-alignment: CENTER_RIGHT; }
+
+.button {
+    -fx-background-color: white;
+    -fx-text-fill: #333333;
+    -fx-border-color: #bdbdbb;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 9 15;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.button:hover { -fx-background-color: #f0f0ee; }
+.button.primary-button { -fx-background-color: #242424; -fx-text-fill: white; -fx-border-color: #242424; }
+.button.primary-button:hover { -fx-background-color: #3b3b3b; }
+.button.ghost-button { -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #555555; }
+.button.ghost-button:hover { -fx-background-color: #e9e9e6; }
+.button.nav-button { -fx-alignment: CENTER_LEFT; -fx-max-width: Infinity; -fx-font-weight: normal; -fx-border-color: transparent; -fx-background-color: transparent; }
+.button.nav-button:hover { -fx-background-color: #e7e7e4; }
+.button.nav-button.current-nav { -fx-background-color: #e7e7e4; -fx-font-weight: bold; }
+.nav-current-label { -fx-background-color: #e7e7e4; -fx-background-radius: 6; -fx-padding: 10 15; -fx-font-weight: bold; -fx-text-fill: #242424; -fx-max-width: Infinity; }
+
+.text-field, .password-field, .combo-box-base, .date-picker {
+    -fx-background-color: white;
+    -fx-border-color: #cececb;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-min-height: 37;
+    -fx-prompt-text-fill: #999999;
+}
+.text-field, .password-field { -fx-padding: 7 11; }
+.combo-box-base .arrow-button, .date-picker .arrow-button { -fx-background-color: #f7f7f5; -fx-background-radius: 0 6 6 0; }
+.check-box { -fx-text-fill: #555555; }
+.check-box .box { -fx-background-color: white; -fx-border-color: #a8a8a6; -fx-border-radius: 3; -fx-background-radius: 3; }
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #dededb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-table-cell-border-color: transparent;
+}
+.table-view .column-header-background { -fx-background-color: #f7f7f5; -fx-background-radius: 8 8 0 0; }
+.table-view .column-header, .table-view .filler { -fx-background-color: transparent; -fx-border-color: transparent transparent #e5e5e2 transparent; -fx-border-width: 0 0 1 0; -fx-size: 38; }
+.table-view .column-header .label { -fx-alignment: CENTER_LEFT; -fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-weight: bold; }
+.table-row-cell { -fx-background-color: white; -fx-border-color: transparent transparent #efefed transparent; -fx-border-width: 0 0 1 0; -fx-cell-size: 44; }
+.table-cell { -fx-text-fill: #3d3d3d; -fx-alignment: CENTER_LEFT; -fx-padding: 0 10; }
+.table-view .placeholder .label { -fx-text-fill: #888888; }
+
+.tab-pane .tab-header-area .tab-header-background { -fx-background-color: transparent; }
+.tab-pane .tab { -fx-background-color: white; -fx-border-color: #d6d6d3; -fx-border-radius: 5 5 0 0; -fx-background-radius: 5 5 0 0; -fx-padding: 7 12; }
+.tab-pane .tab-content-area { -fx-background-color: white; -fx-border-color: #dededb; -fx-border-width: 1; }
+.chart { -fx-background-color: white; }
+.chart-plot-background { -fx-background-color: white; }
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines { -fx-stroke: #e8e8e6; }
+.axis { -fx-tick-label-fill: #777777; }
+.default-color0.chart-series-line, .default-color1.chart-series-line, .default-color2.chart-series-line,
+.default-color3.chart-series-line, .default-color4.chart-series-line, .default-color5.chart-series-line,
+.default-color6.chart-series-line, .default-color7.chart-series-line { -fx-stroke: #242424; -fx-stroke-width: 2px; }
+.default-color0.chart-line-symbol, .default-color1.chart-line-symbol, .default-color2.chart-line-symbol,
+.default-color3.chart-line-symbol, .default-color4.chart-line-symbol, .default-color5.chart-line-symbol,
+.default-color6.chart-line-symbol, .default-color7.chart-line-symbol { -fx-background-color: #242424, white; }

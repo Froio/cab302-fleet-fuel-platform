@@ -8,20 +8,21 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="10.0" xmlns:fx="http://javafx.com/fxml"
+<VBox alignment="CENTER" spacing="24" xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="auth-root"
       fx:controller="com.fuelfleet.cab302fleetfuelplatform.LoginController">
-  <padding>
-    <Insets top="30" right="30" bottom="30" left="30"/>
-  </padding>
-
-  <Label text="Fleet Fuel Platform" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
-  <Label text="Sign in to continue"/>
-  <TextField fx:id="usernameField" promptText="Username"/>
-  <PasswordField fx:id="passwordField" promptText="Password"/>
-  <HBox spacing="10" alignment="CENTER">
-    <Button text="Login" onAction="#onLogin" prefWidth="110"/>
-    <Button text="Register" onAction="#onRegister" prefWidth="110"/>
-  </HBox>
-  <Label fx:id="statusLabel" textFill="red"/>
-
+  <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+  <Label text="Fleet Fuel Platform" styleClass="brand-title"/>
+  <VBox spacing="12" alignment="CENTER_LEFT" maxWidth="430" styleClass="auth-card">
+    <Label text="FLEET MANAGEMENT" styleClass="eyebrow"/>
+    <Label text="Welcome back" styleClass="page-title"/>
+    <Label text="Sign in to manage vehicles, fuel activity and reports." wrapText="true" styleClass="page-subtitle"/>
+    <Label text="Username"/>
+    <TextField fx:id="usernameField" promptText="Enter username" maxWidth="Infinity"/>
+    <Label text="Password"/>
+    <PasswordField fx:id="passwordField" promptText="Enter password" maxWidth="Infinity"/>
+    <Button text="Log in" onAction="#onLogin" maxWidth="Infinity" styleClass="primary-button"/>
+    <Button text="Register first manager" onAction="#onRegister" maxWidth="Infinity" styleClass="ghost-button"/>
+    <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
+  </VBox>
+  <Label text="Fleet Fuel Platform · Desktop application" styleClass="muted-text"/>
 </VBox>

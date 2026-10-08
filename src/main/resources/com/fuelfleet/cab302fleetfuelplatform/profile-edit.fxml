@@ -8,30 +8,30 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.ProfileEditController">
     <top>
-        <VBox spacing="6">
-            <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
-            <Label text="My Profile" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-            <Label text="Keep your name and contact email up to date."/>
+        <VBox spacing="6" styleClass="top-bar">
+            <Label text="ACCOUNT SETTINGS" styleClass="eyebrow"/>
+            <Label text="My profile" styleClass="page-title"/>
+            <Label text="Keep your name and contact email up to date." styleClass="page-subtitle"/>
         </VBox>
     </top>
     <center>
-        <VBox spacing="10" maxWidth="400">
-            <padding><Insets top="10" right="24" bottom="12" left="24"/></padding>
+        <VBox spacing="12" maxWidth="520" styleClass="content-card">
+            <Label text="Contact details" styleClass="section-title"/>
             <Label text="Name"/>
             <TextField fx:id="nameField" promptText="Full name"/>
             <Label text="Contact email"/>
             <TextField fx:id="emailField" promptText="name@example.com"/>
-            <Label fx:id="statusLabel" wrapText="true"/>
+            <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
         </VBox>
     </center>
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT">
-            <padding><Insets top="8" right="24" bottom="20" left="24"/></padding>
-            <Button text="Back to Dashboard" onAction="#onBack"/>
-            <Button text="Save Changes" onAction="#onSave"/>
+            <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+            <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
+            <Button text="Save changes" onAction="#onSave" styleClass="primary-button"/>
         </HBox>
     </bottom>
 </BorderPane>
