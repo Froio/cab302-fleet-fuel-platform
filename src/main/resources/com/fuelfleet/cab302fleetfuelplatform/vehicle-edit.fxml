@@ -31,6 +31,8 @@
       <ComboBox fx:id="fuelTypeCombo" promptText="Select or enter fuel type" prefWidth="300" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
       <Label text="Current Odometer" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
       <TextField fx:id="odometerField" promptText="Whole number" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+      <Label text="Date added" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+      <Label fx:id="dateAddedLabel" text="Recorded automatically when saved" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
     </GridPane>
     <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
     <HBox spacing="12" alignment="CENTER_RIGHT">
