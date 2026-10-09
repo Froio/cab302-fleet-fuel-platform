@@ -15,6 +15,16 @@
     <Label text="To"/><DatePicker fx:id="toDate" prefWidth="140"/>
     <Button text="Apply / refresh" onAction="#onRefresh" styleClass="primary-button"/>
    </FlowPane>
+   <Label text="Fuel expenditure by vehicle" styleClass="section-title"/>
+   <Label fx:id="expenditureTotal" styleClass="section-title"/>
+   <Label text="Uses stored fuel entries and the selected dates. Refreshes every 5 seconds while filters are not being edited." wrapText="true"/>
+   <TableView fx:id="expenditureTable" prefHeight="160" minHeight="160">
+    <columns>
+     <TableColumn fx:id="expenseVehicle" text="Vehicle" prefWidth="430"/>
+     <TableColumn fx:id="expenseEntries" text="Fuel entries" prefWidth="120"/>
+     <TableColumn fx:id="expenseCost" text="Cost (AUD)" prefWidth="160"/>
+    </columns>
+   </TableView>
    <Label fx:id="summary" wrapText="true" minHeight="-Infinity" styleClass="content-card" maxWidth="Infinity"/>
    <Label fx:id="status" wrapText="true" minHeight="-Infinity" styleClass="status-text"/>
    <TabPane tabClosingPolicy="UNAVAILABLE" prefHeight="390" minHeight="390">

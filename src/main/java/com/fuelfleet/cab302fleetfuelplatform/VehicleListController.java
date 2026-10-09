@@ -33,6 +33,7 @@ public class VehicleListController {
     private TableColumn<Vehicle, Number> odometerColumn;
     @FXML
     private TableColumn<Vehicle, String> driverColumn;
+    @FXML private TableColumn<Vehicle, String> dateAddedColumn;
     @FXML
     private Label statusLabel;
 
@@ -51,6 +52,7 @@ public class VehicleListController {
         fuelTypeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().fuelType()));
         odometerColumn.setCellValueFactory(row -> new ReadOnlyLongWrapper(row.getValue().currentOdometer()));
         driverColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().assignedDriverDisplay()));
+        dateAddedColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().dateAddedDisplay()));
         reloadVehicles();
     }
 

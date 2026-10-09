@@ -108,6 +108,15 @@ public final class DBManager {
     private static void migrateVehicleColumns(Connection connection) throws SQLException {
         Set<String> columns = tableColumns(connection, "vehicles");
         try (Statement statement = connection.createStatement()) {
+            if (!columns.contains("date_added")) {
+                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN date_added TEXT");
+            }
+            statement.executeUpdate("""
+                    CREATE TRIGGER IF NOT EXISTS vehicles_date_added_immutable
+                    BEFORE UPDATE OF date_added ON vehicles
+                    WHEN NEW.date_added IS NOT OLD.date_added
+                    BEGIN SELECT RAISE(ABORT, 'Vehicle date added cannot be changed'); END
+                    """);
             if (!columns.contains("fuel_type")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
             }

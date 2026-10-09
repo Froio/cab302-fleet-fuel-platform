@@ -15,6 +15,16 @@ public final class ReportsController {
     @FXML private DatePicker fromDate;
     @FXML private DatePicker toDate;
     @FXML private Label summary;
+    @FXML private Label expenditureTotal;
+    @FXML private TableView<ReportingService.VehicleExpenditure> expenditureTable;
+    @FXML private TableColumn<ReportingService.VehicleExpenditure,String> expenseVehicle;
+    @FXML private TableColumn<ReportingService.VehicleExpenditure,Number> expenseEntries;
+    @FXML private TableColumn<ReportingService.VehicleExpenditure,java.math.BigDecimal> expenseCost;
+    private final javafx.animation.Timeline refreshTimer = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(javafx.util.Duration.seconds(5), event -> {
+                if (!fromDate.getEditor().isFocused() && !toDate.getEditor().isFocused()
+                        && !fromDate.isShowing() && !toDate.isShowing() && !vehicle.isShowing()) onRefresh();
+            }));
     @FXML private Label status;
     @FXML private LineChart<String,Number> costChart;
     @FXML private LineChart<String,Number> emissionsChart;
@@ -22,6 +32,21 @@ public final class ReportsController {
     private final ReportingService reporting = new ReportingService();
 
     @FXML private void initialize() {
+        expenseVehicle.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyStringWrapper(row.getValue().vehicle().toString()));
+        expenseEntries.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyIntegerWrapper(row.getValue().entries()));
+        expenseCost.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyObjectWrapper<>(row.getValue().cost()));
+        expenseCost.setCellFactory(column -> new TableCell<>() {
+            @Override protected void updateItem(java.math.BigDecimal value, boolean empty) {
+                super.updateItem(value,empty);
+                setText(empty || value == null ? null : "$" + value.setScale(2,java.math.RoundingMode.HALF_UP).toPlainString());
+            }
+        });
+        expenditureTable.setPlaceholder(new Label("No vehicles for this selection."));
+        refreshTimer.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        summary.sceneProperty().addListener((observable,oldScene,newScene) -> {
+            refreshTimer.stop();
+            if (newScene != null) refreshTimer.playFromStart();
+        });
         try {
             vehicle.getItems().setAll(new VehicleService().listVehicles());
             onRefresh();
@@ -34,9 +59,18 @@ public final class ReportsController {
         emissionsChart.getData().clear();
         efficiencyChart.getData().clear();
         summary.setText("");
+        expenditureTable.getItems().clear();
+        expenditureTotal.setText("");
         try {
             var selected = vehicle.getValue();
-            var report = reporting.load(selected == null ? null : selected.id(), date(fromDate), date(toDate));
+            LocalDate from = date(fromDate), to = date(toDate);
+            Integer vehicleId = selected == null ? null : selected.id();
+            var expenditure = reporting.expenditure(vehicleId,from,to);
+            expenditureTable.getItems().setAll(expenditure.vehicles());
+            expenditureTotal.setText((selected == null ? "Fleet total" : selected.registration() + " total")
+                    + ": $" + expenditure.total().setScale(2,java.math.RoundingMode.HALF_UP).toPlainString()
+                    + " AUD" + (expenditure.invalidRows() > 0 ? " (valid records only)" : ""));
+            var report = reporting.load(vehicleId, from, to);
             if (report.months().isEmpty()) {
                 status.setText("No valid fuel records for this selection. Record fill-ups first."
                         + invalidMessage(report.invalidRows()));

@@ -33,6 +33,7 @@
           <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="105"/>
           <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="110"/>
           <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="180"/>
+          <TableColumn fx:id="dateAddedColumn" text="Date added" prefWidth="180"/>
         </columns>
       </TableView>
       <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
