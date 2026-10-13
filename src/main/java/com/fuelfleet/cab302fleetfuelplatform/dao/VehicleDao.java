@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,8 @@ public class VehicleDao {
     private static final String SELECT_VEHICLE = """
             SELECT v.id, v.registration, v.make, v.model, v.fuel_type,
                    v.current_odometer, v.assigned_driver_id,
-                   u.username AS assigned_driver_username
+                   u.username AS assigned_driver_username,
+                   v.created_at
             FROM vehicles v
             LEFT JOIN users u ON u.id = v.assigned_driver_id
             """;
@@ -88,9 +90,11 @@ public class VehicleDao {
 
     public Vehicle insert(String registration, String make, String model, String fuelType, long currentOdometer) {
         String sql = """
-                INSERT INTO vehicles (registration, make, model, fuel_type, current_odometer)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO vehicles (registration, make, model, fuel_type, current_odometer, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
+        String createdAt = Instant.now().toString();
+
         try (Connection connection = connectionProvider.open();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, registration);
@@ -98,13 +102,16 @@ public class VehicleDao {
             statement.setString(3, model);
             statement.setString(4, fuelType);
             statement.setLong(5, currentOdometer);
+            statement.setString(6, createdAt);
+
             statement.executeUpdate();
+
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (!keys.next()) {
                     throw new IllegalStateException("Database did not return a vehicle ID");
                 }
                 return new Vehicle(keys.getInt(1), registration, make, model, fuelType,
-                        currentOdometer, null, null);
+                        currentOdometer, null, null, createdAt);
             }
         } catch (SQLException exception) {
             throw new DataAccessException("Unable to create vehicle", exception);
@@ -192,7 +199,8 @@ public class VehicleDao {
                 rows.getString("fuel_type"),
                 rows.getLong("current_odometer"),
                 assignedDriverId,
-                rows.getString("assigned_driver_username")
+                rows.getString("assigned_driver_username"),
+                rows.getString("created_at")
         );
     }
 }

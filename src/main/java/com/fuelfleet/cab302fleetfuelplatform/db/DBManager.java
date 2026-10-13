@@ -45,6 +45,7 @@ public final class DBManager {
             connection.setAutoCommit(false);
             try {
                 createBaseTables(connection);
+                migrateUserProfileColumns(connection);
                 migrateVehicleColumns(connection);
                 createFuelLogs(connection);
                 createUniqueIndexes(connection);
@@ -108,6 +109,13 @@ public final class DBManager {
     private static void migrateVehicleColumns(Connection connection) throws SQLException {
         Set<String> columns = tableColumns(connection, "vehicles");
         try (Statement statement = connection.createStatement()) {
+
+            if (!columns.contains("created_at")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN created_at TEXT"
+                );
+            }
+
             if (!columns.contains("fuel_type")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
             }
@@ -143,4 +151,24 @@ public final class DBManager {
         }
     }
 
+    private static void migrateUserProfileColumns(Connection connection)
+        throws SQLException {
+
+        Set<String> columns = tableColumns(connection, "users");
+
+        try (Statement statement = connection.createStatement()) {
+
+            if (!columns.contains("full_name")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN full_name TEXT"
+                );
+            }
+
+            if (!columns.contains("contact_email")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN contact_email TEXT"
+                );
+            }
+        }
+    }
 }
