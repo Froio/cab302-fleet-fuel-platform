@@ -14,7 +14,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,10 +54,9 @@ class VehicleCreationDateTest {
                 "DATE001", "Toyota", "Corolla", "Petrol", "1000"
         );
 
-        assertNotNull(vehicle.createdAt());
-        assertFalse(vehicle.createdAt().isBlank());
+        assertNotNull(vehicle.dateAdded());
+        assertEquals(LocalDate.now(), vehicle.dateAdded());
 
-        assertDoesNotThrow(() -> Instant.parse(vehicle.createdAt()));
     }
 
     @Test
@@ -69,7 +69,7 @@ class VehicleCreationDateTest {
         Vehicle reloaded = vehicleDao.findById(created.id())
                 .orElseThrow();
 
-        assertEquals(created.createdAt(), reloaded.createdAt());
+        assertEquals(created.dateAdded(), reloaded.dateAdded());
     }
 
     @Test
@@ -79,7 +79,7 @@ class VehicleCreationDateTest {
                 "DATE003", "Ford", "Focus", "Petrol", "3000"
         );
 
-        String originalDate = created.createdAt();
+        LocalDate originalDate = created.dateAdded();
 
         vehicleService.updateVehicle(
                 created.id(),
@@ -93,7 +93,7 @@ class VehicleCreationDateTest {
         Vehicle updated = vehicleDao.findById(created.id())
                 .orElseThrow();
 
-        assertEquals(originalDate, updated.createdAt());
+        assertEquals(originalDate, updated.dateAdded());
         assertEquals(5000L, updated.currentOdometer());
 
     }
@@ -112,6 +112,6 @@ class VehicleCreationDateTest {
                 null
         );
 
-        assertEquals("Unkown", legacyVehicle.createdAtDisplay());
+        assertEquals("Not recorded (legacy vehicle)", legacyVehicle.dateAddedDisplay());
     }
 }

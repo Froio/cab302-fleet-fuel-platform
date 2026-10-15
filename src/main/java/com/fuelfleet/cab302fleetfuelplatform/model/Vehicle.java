@@ -12,8 +12,17 @@ public record Vehicle(
         long currentOdometer,
         Integer assignedDriverId,
         String assignedDriverUsername,
-        String createdAt
+java.time.LocalDate dateAdded
 ) {
+    public Vehicle(int id, String registration, String make, String model, String fuelType,
+                   long currentOdometer, Integer assignedDriverId, String assignedDriverUsername) {
+        this(id,registration,make,model,fuelType,currentOdometer,assignedDriverId,assignedDriverUsername,null);
+    }
+
+    public String dateAddedDisplay() {
+        return dateAdded == null ? "Not recorded (legacy vehicle)" : dateAdded.toString();
+    }
+
     public Vehicle {
         if (id <= 0) {
             throw new IllegalArgumentException("Vehicle ID must be positive");
@@ -30,24 +39,6 @@ public record Vehicle(
         }
     }
 
-    public Vehicle(
-            int id,
-            String registration,
-            String make,
-            String model,
-            String fuelType,
-            long currentOdometer,
-            Integer assignedDriverId,
-            String assingedDriverUsername
-    ) {
-        this(id,registration,make,model, fuelType, currentOdometer, assignedDriverId, assingedDriverUsername, null);
-    }
-
-    public String createdAtDisplay() {
-        return createdAt == null || createdAt.isBlank()
-                ? "Unkown"
-                : createdAt;
-    }
 
 
     public String assignedDriverDisplay() {

@@ -15,6 +15,7 @@ import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 public class VehicleEditController {
     @FXML
     private Label titleLabel;
+    @FXML private Label dateAddedLabel;
     @FXML
     private Label formDescriptionLabel;
     @FXML
@@ -49,6 +50,7 @@ public class VehicleEditController {
 
     void editVehicle(Vehicle vehicle) {
         editingVehicleId = vehicle.id();
+        dateAddedLabel.setText(vehicle.dateAddedDisplay());
         titleLabel.setText("Edit Vehicle");
         formDescriptionLabel.setText("Update the selected vehicle. Registration numbers must remain unique.");
         saveButton.setText("Save Changes");
