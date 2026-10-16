@@ -18,7 +18,8 @@ public final class DBManager {
     }
 
     public static Connection getConnection() throws SQLException {
-        return provider(DEFAULT_URL).open();
+        String jdbcUrl = System.getProperty("fleet.db.url", DEFAULT_URL);
+        return provider(jdbcUrl).open();
     }
 
     public static ConnectionProvider provider(String jdbcUrl) {
