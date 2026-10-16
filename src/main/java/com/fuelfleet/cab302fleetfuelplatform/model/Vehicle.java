@@ -1,6 +1,7 @@
 package com.fuelfleet.cab302fleetfuelplatform.model;
 
 import java.util.Locale;
+import java.util.Vector;
 
 public record Vehicle(
         int id,
@@ -11,7 +12,7 @@ public record Vehicle(
         long currentOdometer,
         Integer assignedDriverId,
         String assignedDriverUsername,
-        java.time.LocalDate dateAdded
+java.time.LocalDate dateAdded
 ) {
     public Vehicle(int id, String registration, String make, String model, String fuelType,
                    long currentOdometer, Integer assignedDriverId, String assignedDriverUsername) {
@@ -37,6 +38,8 @@ public record Vehicle(
             assignedDriverUsername = assignedDriverUsername.trim();
         }
     }
+
+
 
     public String assignedDriverDisplay() {
         return assignedDriverUsername == null || assignedDriverUsername.isBlank()

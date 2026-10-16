@@ -54,6 +54,7 @@ public class VehicleListController {
         driverColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().assignedDriverDisplay()));
         dateAddedColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().dateAddedDisplay()));
         reloadVehicles();
+
     }
 
     @FXML

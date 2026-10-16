@@ -73,6 +73,57 @@ public final class UserService {
         }
     }
 
+    public UserDao.Profile getMyProfile() {
+
+        User currentUser = session.currentUser().orElseThrow(
+                () -> new AuthorizationException(
+                        "Please sign in to view your profile.")
+        );
+        return userDao.findProfileById(currentUser.id()).orElseThrow(
+                () -> new ValidationException(
+                        "Your user account no longer exists.")
+
+        );
+    }
+
+
+   public void updateMyProfile(String fullName, String contactEmail) {
+
+        User currentUser = session.currentUser().orElseThrow(
+                () -> new AuthorizationException(
+                        "Please sign in to update your profile")
+                );
+
+        String validatedName =
+                requireText(fullName, "Name is required.");
+
+        String validatedEmail =
+                requireText(contactEmail, "Contact email is required.");
+
+       if (validatedName.length() > 100) {
+           throw new ValidationException(
+                   "Name must be 100 characters or fewer.");
+       }
+
+
+    if(validatedEmail.length()>254
+            ||!validatedEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))
+
+    {
+        throw new ValidationException("Enter a valid contact email.");
+    }
+
+    if(!userDao.updateProfile(
+            currentUser.id(),
+    validatedName,
+    validatedEmail))
+
+    {
+        throw new ValidationException("Your user account no longer exists.");
+    }
+}
+
+
     private void requireManager() {
         if (!session.isManager()) {
             throw new AuthorizationException("Fleet manager access is required.");
