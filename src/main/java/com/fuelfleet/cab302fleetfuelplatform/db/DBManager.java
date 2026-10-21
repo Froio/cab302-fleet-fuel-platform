@@ -111,6 +111,13 @@ public final class DBManager {
         Set<String> columns = tableColumns(connection, "vehicles");
         try (Statement statement = connection.createStatement()) {
 
+            if (!columns.contains("next_service_odometer")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN next_service_odometer INTEGER " +
+                             "CHECK (next_service_odometer IS NULL OR next_service_odometer >= 0)"
+                );
+            }
+
 
             if (!columns.contains("date_added")) {
                 statement.executeUpdate(

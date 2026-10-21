@@ -5,11 +5,8 @@ import com.fuelfleet.cab302fleetfuelplatform.db.DBManager;
 import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import javax.xml.transform.Result;
+import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,6 +146,84 @@ public class VehicleDao {
             throw new DataAccessException("Unable to update vehicle", exception);
         }
     }
+
+
+   public Optional<Long> findNextServiceOdometer(int vehicleId) {
+        String sql = """
+                SELECT next_service_odometer
+                FROM vehicles
+                WHERE id = ?
+                """;
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1,vehicleId);
+
+            try (ResultSet rows = statement.executeQuery()) {
+                if (!rows.next()) {
+                    return Optional.empty();
+
+                }
+
+                long reading = rows.getLong("next_service_odometer");
+
+                if (rows.wasNull()) {
+                    return Optional.empty();
+
+                }
+
+                return Optional.of(reading);
+
+            }
+
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Unable to load vehicle maintenance schedule",
+                    exception
+            );
+        }
+   }
+
+
+
+
+    public boolean updateNextServiceOdometer(
+            int vehicleId,
+            Long nextServiceOdometer
+    ) {
+        String sql = """
+               UPDATE vehicles
+               SET next_service_odometer = ?
+               WHERE id =?
+               """;
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+           if (nextServiceOdometer == null) {
+               statement.setNull(1, Types.INTEGER);
+           } else {
+               statement.setLong(1, nextServiceOdometer);
+           }
+
+           if (nextServiceOdometer == null) {
+               statement.setNull(1, Types.INTEGER);
+
+           } else {
+               statement.setLong(1, nextServiceOdometer);
+           }
+            statement.setInt(2, vehicleId);
+
+            return statement.executeUpdate() == 1;
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Unable to update vehicle maintenance schedule" ,
+                    exception
+            );
+        }
+
+    }
+
+
+
 
     public boolean delete(int vehicleId) {
         try (Connection connection = connectionProvider.open();

@@ -29,6 +29,8 @@
                     <TableColumn fx:id="modelColumn" text="Model" prefWidth="150"/>
                     <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="140"/>
                     <TableColumn fx:id="odometerColumn" text="Current Odometer" prefWidth="170"/>
+                    <TableColumn fx:id="nextServiceColumn" text="Next Service (km)" prefWidth="155"/>
+                    <TableColumn fx:id="maintenanceStatusColumn" text="Maintenance Status" prefWidth="165"/>
                 </columns>
             </TableView>
             <Label fx:id="statusLabel" styleClass="status-text"/>

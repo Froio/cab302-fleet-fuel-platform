@@ -4,6 +4,7 @@ module com.fuelfleet.cab302fleetfuelplatform {
     requires java.sql;
 
     requires org.kordamp.bootstrapfx.core;
+    requires jdk.compiler;
 
     opens com.fuelfleet.cab302fleetfuelplatform to javafx.fxml;
     exports com.fuelfleet.cab302fleetfuelplatform;
