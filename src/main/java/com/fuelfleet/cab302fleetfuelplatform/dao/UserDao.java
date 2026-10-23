@@ -6,11 +6,15 @@ import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Role;
 import com.fuelfleet.cab302fleetfuelplatform.model.User;
 
+import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -164,6 +168,59 @@ public class UserDao {
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw new DataAccessException("Unable to update password", exception);
+        }
+    }
+
+
+    public Optional<Profile> findProfileById(int userId) {
+        String sql = "SELECT id, full_name, contact_email FROM users WHERE id = ?";
+
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet rows = statement.executeQuery()) {
+                if (!rows.next()) {
+                    return Optional.empty();
+                }
+
+                return Optional.of(new Profile(
+                        rows.getInt("id"),
+                        rows.getString("full_name"),
+                        rows.getString("contact_email")
+                ));
+            }
+        } catch (SQLException exception) {
+            throw new DataAccessException("Unable to load user profile", exception);
+        }
+    }
+
+
+    public boolean updateProfile(int userId,String fullName, String contactEmail) {
+        String sql = "UPDATE users SET full_name = ?, contact_email = ? WHERE id = ?";
+
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, fullName);
+            statement.setString(2, contactEmail);
+            statement.setInt(3, userId);
+
+            return statement.executeUpdate() == 1;
+
+
+        } catch (SQLException exception) {
+            throw new DataAccessException("Unable to update user profile", exception);
+        }
+    }
+
+
+    public record Profile (int userId, String fullName, String contactEmail) {
+        public Profile {
+            fullName = fullName == null ? "" : fullName;
+            contactEmail = contactEmail == null ? "" : contactEmail;
+
         }
     }
 

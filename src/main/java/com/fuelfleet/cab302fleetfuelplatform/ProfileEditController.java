@@ -1,5 +1,9 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
+import com.fuelfleet.cab302fleetfuelplatform.dao.UserDao;
+import com.fuelfleet.cab302fleetfuelplatform.service.UserService;
+import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -12,33 +16,69 @@ public class ProfileEditController {
     @FXML
     private Label statusLabel;
 
+    private final UserService userService = new UserService();
+
     @FXML
     private void initialize() {
-        nameField.setText("Sample User");
-        emailField.setText("sample.user@example.com");
-        statusLabel.setText("Placeholder data - profile saving to be connected.");
+        try {
+            UserDao.Profile profile = userService.getMyProfile();
+
+            nameField.setText(profile.fullName());
+            emailField.setText(profile.contactEmail());
+
+            showSuccess("Profile loaded successfully.");
+
+        } catch (RuntimeException exception) {
+            showError(exception.getMessage());
+        }
     }
 
-    @FXML
-    private void onSave() {
-        String name = nameField.getText() == null ? "" : nameField.getText().trim();
-        String email = emailField.getText() == null ? "" : emailField.getText().trim();
-        if (name.isEmpty()) {
-            statusLabel.setStyle("-fx-text-fill: #b42318;");
-            statusLabel.setText("Name is required.");
-            return;
+        @FXML
+        private void onSave () {
+            try {
+                userService.updateMyProfile(
+                        nameField.getText(),
+                        emailField.getText()
+                );
+
+                showSuccess("profile updated successfully");
+            } catch (RuntimeException exception) {
+                showError(exception.getMessage());
+            }
         }
-        if (!email.contains("@") || email.startsWith("@") || email.endsWith("@")) {
-            statusLabel.setStyle("-fx-text-fill: #b42318;");
-            statusLabel.setText("Enter a valid contact email.");
-            return;
+
+        private void showError (String message){
+            statusLabel.setStyle("-fx-text-fill: #b42318");
+            statusLabel.setText(message);
         }
-        statusLabel.setStyle("-fx-text-fill: #067647;");
-        statusLabel.setText("Profile updated (mockup - not stored yet).");
+
+        private void showSuccess (String message){
+            statusLabel.setStyle("-fx-text-fill: #067647;");
+            statusLabel.setText(message);
+        }
+
+        @FXML
+        private void onBack () {
+            String dashdoard = AppSession.getInstance().isManager()
+                    ? "manager-dashboard.fxml"
+                    : "driver-dashboard.fxml";
+
+            HelloApplication.switchScene(dashdoard);
+        }
     }
 
-    @FXML
-    private void onBack() {
-        HelloApplication.switchScene("manager-dashboard.fxml");
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

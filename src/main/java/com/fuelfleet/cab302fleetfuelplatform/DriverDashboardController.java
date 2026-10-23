@@ -1,6 +1,7 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
 import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
+import com.fuelfleet.cab302fleetfuelplatform.service.MaintenanceService;
 import com.fuelfleet.cab302fleetfuelplatform.model.Role;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 import com.fuelfleet.cab302fleetfuelplatform.service.VehicleService;
@@ -30,8 +31,13 @@ public class DriverDashboardController {
     private TableColumn<Vehicle, String> fuelTypeColumn;
     @FXML
     private TableColumn<Vehicle, Number> odometerColumn;
+    @FXML
+    private TableColumn<Vehicle, String> nextServiceColumn;
+    @FXML
+    private TableColumn<Vehicle, String> maintenanceStatusColumn;
 
     private final VehicleService vehicleService = new VehicleService();
+    private final MaintenanceService maintenanceService = new MaintenanceService();
     private final AppSession session = AppSession.getInstance();
 
     @FXML
@@ -49,6 +55,23 @@ public class DriverDashboardController {
         modelColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().model()));
         fuelTypeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().fuelType()));
         odometerColumn.setCellValueFactory(row -> new ReadOnlyLongWrapper(row.getValue().currentOdometer()));
+        nextServiceColumn.setCellValueFactory(row -> {
+            Long nextService = maintenanceService
+                    .getNextServiceOdometerForCurrentDriver(row.getValue().id());
+
+            return new ReadOnlyStringWrapper(
+                    nextService == null ? "Not Scheduled" : Long.toString(nextService)
+            );
+        });
+
+        maintenanceStatusColumn.setCellValueFactory(row -> {
+            String status = maintenanceService
+                    .getMaintenanceStatus(row.getValue().id())
+            .name()
+                    .replace('_', ' ');
+
+        return new ReadOnlyStringWrapper(status);
+        });
         reloadVehicles();
     }
 

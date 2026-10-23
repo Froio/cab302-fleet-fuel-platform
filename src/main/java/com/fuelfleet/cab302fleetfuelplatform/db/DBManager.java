@@ -18,7 +18,8 @@ public final class DBManager {
     }
 
     public static Connection getConnection() throws SQLException {
-        return provider(DEFAULT_URL).open();
+        String jdbcUrl = System.getProperty("fleet.db.url", DEFAULT_URL);
+        return provider(jdbcUrl).open();
     }
 
     public static ConnectionProvider provider(String jdbcUrl) {
@@ -45,6 +46,7 @@ public final class DBManager {
             connection.setAutoCommit(false);
             try {
                 createBaseTables(connection);
+                migrateUserProfileColumns(connection);
                 migrateVehicleColumns(connection);
                 createFuelLogs(connection);
                 createUniqueIndexes(connection);
@@ -108,15 +110,28 @@ public final class DBManager {
     private static void migrateVehicleColumns(Connection connection) throws SQLException {
         Set<String> columns = tableColumns(connection, "vehicles");
         try (Statement statement = connection.createStatement()) {
-            if (!columns.contains("date_added")) {
-                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN date_added TEXT");
+
+            if (!columns.contains("next_service_odometer")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN next_service_odometer INTEGER " +
+                             "CHECK (next_service_odometer IS NULL OR next_service_odometer >= 0)"
+                );
             }
+
+
+            if (!columns.contains("date_added")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN date_added TEXT"
+                );
+            }
+
             statement.executeUpdate("""
                     CREATE TRIGGER IF NOT EXISTS vehicles_date_added_immutable
                     BEFORE UPDATE OF date_added ON vehicles
                     WHEN NEW.date_added IS NOT OLD.date_added
                     BEGIN SELECT RAISE(ABORT, 'Vehicle date added cannot be changed'); END
                     """);
+
             if (!columns.contains("fuel_type")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
             }
@@ -152,4 +167,24 @@ public final class DBManager {
         }
     }
 
+    private static void migrateUserProfileColumns(Connection connection)
+        throws SQLException {
+
+        Set<String> columns = tableColumns(connection, "users");
+
+        try (Statement statement = connection.createStatement()) {
+
+            if (!columns.contains("full_name")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN full_name TEXT"
+                );
+            }
+
+            if (!columns.contains("contact_email")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN contact_email TEXT"
+                );
+            }
+        }
+    }
 }

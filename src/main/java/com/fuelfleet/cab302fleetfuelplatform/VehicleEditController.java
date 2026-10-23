@@ -1,5 +1,6 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
+import com.fuelfleet.cab302fleetfuelplatform.service.MaintenanceService;
 import javafx.fxml.FXML;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
@@ -11,6 +12,7 @@ import com.fuelfleet.cab302fleetfuelplatform.exception.ValidationException;
 import com.fuelfleet.cab302fleetfuelplatform.service.VehicleService;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
+
 
 public class VehicleEditController {
     @FXML
@@ -29,11 +31,14 @@ public class VehicleEditController {
     @FXML
     private TextField odometerField;
     @FXML
+    private TextField nextServiceField;
+    @FXML
     private Label statusLabel;
     @FXML
     private Button saveButton;
 
     private final VehicleService vehicleService = new VehicleService();
+    private final MaintenanceService maintenanceService = new MaintenanceService();
     private Integer editingVehicleId;
 
     @FXML
@@ -59,19 +64,37 @@ public class VehicleEditController {
         modelField.setText(vehicle.model());
         fuelTypeCombo.setValue(vehicle.fuelType());
         odometerField.setText(Long.toString(vehicle.currentOdometer()));
+        Long nextService = maintenanceService.getNextServiceOdometer(
+                vehicle.id()
+        );
+        nextServiceField.setText(
+                nextService == null ? "" : Long.toString(nextService)
+        );
     }
 
     @FXML
     private void onSave() {
         try {
+            Long nextService = parseNextServiceOdometer();
             if (editingVehicleId == null) {
-                vehicleService.createVehicle(
+                Vehicle newVehicle = vehicleService.createVehicle(
+
                         regField.getText(),
                         makeField.getText(),
                         modelField.getText(),
                         fuelTypeCombo.getEditor().getText(),
                         odometerField.getText()
                 );
+
+                if (nextService != null) {
+                    maintenanceService.scheduleService(
+                            newVehicle.id(), nextService
+                    );
+
+                }
+
+
+
             } else {
                 vehicleService.updateVehicle(
                         editingVehicleId,
@@ -81,6 +104,15 @@ public class VehicleEditController {
                         fuelTypeCombo.getEditor().getText(),
                         odometerField.getText()
                 );
+
+                if (nextService == null) {
+                    maintenanceService.clearServiceSchedule(editingVehicleId);
+
+                } else {
+                    maintenanceService.scheduleService(
+                            editingVehicleId, nextService
+                            );
+                }
             }
             HelloApplication.switchScene("vehicle-list.fxml");
         } catch (ValidationException exception) {
@@ -94,6 +126,33 @@ public class VehicleEditController {
     private void onCancel() {
         HelloApplication.switchScene("vehicle-list.fxml");
     }
+
+    private Long parseNextServiceOdometer() {
+        String text = nextServiceField.getText().trim();
+
+        if (text.isEmpty()){
+            return null;
+        }
+
+        try {
+            long reading = Long.parseLong(text);
+
+            if (reading <0) {
+                throw new ValidationException(
+                        "Next service odometer cannot be negative."
+                );
+
+            }
+
+            return reading;
+        } catch (NumberFormatException exception) {
+            throw new ValidationException(
+                    "Next service odometer must be a whole number."
+            );
+        }
+    }
+
+
 
     private void showError(String message) {
         statusLabel.setStyle("-fx-text-fill: #b42318;");
