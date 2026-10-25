@@ -14,15 +14,32 @@ public final class MaintenanceService {
 
         private final VehicleDao vehicleDao;
         private final AppSession session;
+        private final MaintenancePolicy maintenancePolicy;
 
         public MaintenanceService() {
-            this(new VehicleDao(), AppSession.getInstance());
+            this(new VehicleDao(), AppSession.getInstance(),new StandardMaintenancePolicy());
 
 }
 
 public MaintenanceService(VehicleDao vehicleDao, AppSession session) {
+    this(
+            vehicleDao,
+            session,
+            new StandardMaintenancePolicy()
+    );
+}
+
+public MaintenanceService (
+        VehicleDao vehicleDao,
+        AppSession session,
+        MaintenancePolicy maintenancePolicy
+) {
             this.vehicleDao = vehicleDao;
             this.session = session;
+            this.maintenancePolicy = java.util.Objects.requireNonNull(
+                    maintenancePolicy,
+                    "Maintenance policy cannot be null"
+            );
 }
 
 public void clearServiceSchedule(int vehicleId) {
@@ -118,7 +135,7 @@ public MaintenanceStatus getMaintenanceStatus(int vehicleId) {
                     .findNextServiceOdometer(vehicleId)
                     .orElse(null);
 
-            return MaintenanceStatus.calculate(
+            return maintenancePolicy.calculate(
                     vehicle.currentOdometer(),
                     nextServiceOdometer
             );
