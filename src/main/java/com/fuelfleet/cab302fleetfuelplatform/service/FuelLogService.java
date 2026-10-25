@@ -101,8 +101,12 @@ public final class FuelLogService {
         for (FuelHistoryEntry entry : history) {
             FuelLog log = entry.log();
             String efficiency = entry.litresPer100Km().isPresent()
-                    ? String.format("%.2f", entry.litresPer100Km().getAsDouble())
-                    : "N/A";
+                    ? String.format(
+                           java.util.Locale.ROOT,
+                            "%.2f",
+                            entry.litresPer100Km().getAsDouble()
+            )
+                    :"N/A";
 
             csv.append(log.date()).append(",");
             csv.append(log.vehicleRegistration()).append(",");
