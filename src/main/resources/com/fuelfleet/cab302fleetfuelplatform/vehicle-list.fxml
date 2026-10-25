@@ -9,40 +9,44 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.VehicleListController">
   <top>
-    <VBox spacing="6">
-      <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
-      <Label text="Vehicle Management" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-      <Label text="Register vehicles, review fleet details, and remove records."/>
+    <VBox spacing="6" styleClass="top-bar">
+      <Label text="FLEET MANAGEMENT" styleClass="eyebrow"/>
+      <Label text="Vehicles" styleClass="page-title"/>
+      <Label text="Register vehicles, review fleet details, and remove records." styleClass="page-subtitle"/>
     </VBox>
   </top>
   <center>
     <VBox spacing="10">
-      <padding><Insets right="24" bottom="12" left="24"/></padding>
+      <padding><Insets top="18" right="30" bottom="12" left="30"/></padding>
+      <Label text="Vehicle list" styleClass="section-title"/>
       <TableView fx:id="vehicleTable" prefHeight="430">
         <columns>
-          <TableColumn fx:id="idColumn" text="ID" prefWidth="55"/>
-          <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="125"/>
-          <TableColumn fx:id="makeColumn" text="Make" prefWidth="120"/>
-          <TableColumn fx:id="modelColumn" text="Model" prefWidth="120"/>
-          <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="105"/>
-          <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="110"/>
-          <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="180"/>
+          <TableColumn fx:id="idColumn" text="ID" prefWidth="45"/>
+          <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="100"/>
+          <TableColumn fx:id="makeColumn" text="Make" prefWidth="90"/>
+          <TableColumn fx:id="modelColumn" text="Model" prefWidth="90"/>
+          <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="85"/>
+          <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="90"/>
+          <TableColumn fx:id="nextServiceColumn" text="Next Service" prefWidth="100"/>
+          <TableColumn fx:id="maintenanceStatusColumn" text="Maintenance" prefWidth="110"/>
+          <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="140"/>
+          <TableColumn fx:id="dateAddedColumn" text="Date Added" prefWidth="100"/>
         </columns>
       </TableView>
-      <Label fx:id="statusLabel" wrapText="true"/>
+      <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
     </VBox>
   </center>
   <bottom>
     <HBox spacing="10" alignment="CENTER_RIGHT">
-      <padding><Insets top="8" right="24" bottom="20" left="24"/></padding>
-      <Button text="Back to Dashboard" onAction="#onBack"/>
-      <Button text="Assignments" onAction="#onAssignments"/>
-      <Button text="Delete Selected" onAction="#onDelete"/>
-      <Button text="Edit Selected" onAction="#onEdit"/>
-      <Button text="Add Vehicle" onAction="#onAdd"/>
+      <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+      <Button text="Back to Dashboard" onAction="#onBack" styleClass="ghost-button"/>
+      <Button text="Assignments" onAction="#onAssignments" styleClass="ghost-button"/>
+      <Button text="Delete Selected" onAction="#onDelete" styleClass="ghost-button"/>
+      <Button text="Edit Selected" onAction="#onEdit" styleClass="ghost-button"/>
+      <Button text="Add Vehicle" onAction="#onAdd" styleClass="ghost-button"/>
     </HBox>
   </bottom>
 </BorderPane>

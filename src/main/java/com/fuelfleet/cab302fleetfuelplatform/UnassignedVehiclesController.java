@@ -1,5 +1,7 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
+import com.fuelfleet.cab302fleetfuelplatform.dao.VehicleDao;
+import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -27,12 +29,8 @@ public class UnassignedVehiclesController {
     @FXML
     private Label statusLabel;
 
-    private final List<VehicleRow> allRows = List.of(
-            new VehicleRow("ABC123", "Toyota Hilux", "Assigned"),
-            new VehicleRow("DEF456", "Mazda BT-50", "UNASSIGNED"),
-            new VehicleRow("XYZ789", "Ford Ranger", "Assigned"),
-            new VehicleRow("GHI321", "Isuzu D-Max", "UNASSIGNED")
-    );
+    private final VehicleDao vehicleDao = new VehicleDao();
+    private List<VehicleRow> allRows = List.of();
 
     @FXML
     private void initialize() {
@@ -43,8 +41,24 @@ public class UnassignedVehiclesController {
         registrationColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().registration()));
         makeModelColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().makeModel()));
         statusColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().status()));
-        onFilter();
-        statusLabel.setText("Placeholder data - live vehicle assignments to be connected.");
+        loadVehicles();
+    }
+
+    private void loadVehicles() {
+        try {
+            List<Vehicle> vehicles = vehicleDao.listAll();
+            allRows = vehicles.stream()
+                    .map(v -> new VehicleRow(
+                            v.registration(),
+                            v.make() + " " + v.model(),
+                            v.assignedDriverId() == null ? "UNASSIGNED" : "Assigned"
+                    ))
+                    .toList();
+            onFilter();
+            statusLabel.setText(allRows.size() + " vehicle(s).");
+        } catch (Exception exception) {
+            statusLabel.setText("Unable to load vehicles: " + exception.getMessage());
+        }
     }
 
     @FXML
