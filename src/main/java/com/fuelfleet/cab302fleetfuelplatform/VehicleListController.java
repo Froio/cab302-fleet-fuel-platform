@@ -34,6 +34,8 @@ public class VehicleListController {
     @FXML
     private TableColumn<Vehicle, String> driverColumn;
     @FXML
+    private TableColumn<Vehicle, String> dateAddedColumn;
+    @FXML
     private Label statusLabel;
 
     private final VehicleService vehicleService = new VehicleService();
@@ -51,6 +53,7 @@ public class VehicleListController {
         fuelTypeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().fuelType()));
         odometerColumn.setCellValueFactory(row -> new ReadOnlyLongWrapper(row.getValue().currentOdometer()));
         driverColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().assignedDriverDisplay()));
+        dateAddedColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().dateAdded().toString()));
         reloadVehicles();
     }
 

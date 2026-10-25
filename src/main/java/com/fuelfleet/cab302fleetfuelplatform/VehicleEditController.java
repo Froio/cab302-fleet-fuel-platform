@@ -31,6 +31,10 @@ public class VehicleEditController {
     private Label statusLabel;
     @FXML
     private Button saveButton;
+    @FXML
+    private Label dateAddedCaptionLabel;
+    @FXML
+    private Label dateAddedLabel;
 
     private final VehicleService vehicleService = new VehicleService();
     private Integer editingVehicleId;
@@ -45,6 +49,10 @@ public class VehicleEditController {
                 "Petrol", "Diesel", "Hybrid", "Electric", "LPG"));
         fuelTypeCombo.setEditable(true);
         odometerField.setText("0");
+        dateAddedCaptionLabel.setVisible(false);
+        dateAddedCaptionLabel.setManaged(false);
+        dateAddedLabel.setVisible(false);
+        dateAddedLabel.setManaged(false);
     }
 
     void editVehicle(Vehicle vehicle) {
@@ -57,6 +65,11 @@ public class VehicleEditController {
         modelField.setText(vehicle.model());
         fuelTypeCombo.setValue(vehicle.fuelType());
         odometerField.setText(Long.toString(vehicle.currentOdometer()));
+        dateAddedCaptionLabel.setVisible(true);
+        dateAddedCaptionLabel.setManaged(true);
+        dateAddedLabel.setVisible(true);
+        dateAddedLabel.setManaged(true);
+        dateAddedLabel.setText(vehicle.dateAdded().toString());
     }
 
     @FXML

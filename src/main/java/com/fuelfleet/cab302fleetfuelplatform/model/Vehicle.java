@@ -1,6 +1,8 @@
 package com.fuelfleet.cab302fleetfuelplatform.model;
 
+import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Objects;
 
 public record Vehicle(
         int id,
@@ -10,7 +12,8 @@ public record Vehicle(
         String fuelType,
         long currentOdometer,
         Integer assignedDriverId,
-        String assignedDriverUsername
+        String assignedDriverUsername,
+        LocalDate dateAdded
 ) {
     public Vehicle {
         if (id <= 0) {
@@ -26,6 +29,7 @@ public record Vehicle(
         if (assignedDriverUsername != null) {
             assignedDriverUsername = assignedDriverUsername.trim();
         }
+        dateAdded = Objects.requireNonNull(dateAdded, "Date added is required");
     }
 
     public String assignedDriverDisplay() {

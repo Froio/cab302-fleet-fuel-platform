@@ -76,7 +76,8 @@ public final class DBManager {
                         model TEXT NOT NULL,
                         fuel_type TEXT NOT NULL DEFAULT 'Unknown',
                         current_odometer INTEGER NOT NULL DEFAULT 0 CHECK (current_odometer >= 0),
-                        assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL
+                        assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                        date_added TEXT NOT NULL DEFAULT (DATE('now'))
                     )
                     """);
         }
@@ -116,6 +117,10 @@ public final class DBManager {
             }
             if (!columns.contains("assigned_driver_id")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL");
+            }
+            if (!columns.contains("date_added")) {
+                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN date_added TEXT");
+                statement.executeUpdate("UPDATE vehicles SET date_added = DATE('now') WHERE date_added IS NULL");
             }
             statement.executeUpdate("UPDATE vehicles SET fuel_type = 'Unknown' WHERE fuel_type IS NULL OR TRIM(fuel_type) = ''");
             statement.executeUpdate("UPDATE vehicles SET current_odometer = 0 WHERE current_odometer IS NULL OR current_odometer < 0");
