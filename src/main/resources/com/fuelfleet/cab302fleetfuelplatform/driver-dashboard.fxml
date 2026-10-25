@@ -40,6 +40,7 @@
         <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="action-row">
             <padding><Insets top="10" right="30" bottom="24" left="30"/></padding>
             <Button text="Sign out" onAction="#onLogout"/>
+            <Button text="My profile" onAction="#onProfile" styleClass="ghost-button"/>
             <Button text="+ Add fuel log" onAction="#onAddFuelLog" styleClass="primary-button"/>
         </HBox>
     </bottom>

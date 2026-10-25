@@ -25,6 +25,16 @@
      <TableColumn fx:id="expenseCost" text="Cost (AUD)" prefWidth="160"/>
     </columns>
    </TableView>
+   <Label text="Estimated emissions by vehicle" styleClass="section-title"/>
+   <Label text="Uses the same vehicle and date filters. Click column headings to sort within complete, incomplete and unavailable groups. Partial totals cover known entries only; missing data does not mean zero emissions." wrapText="true"/>
+   <TableView fx:id="comparisonTable" prefHeight="224" minHeight="224">
+    <columns>
+     <TableColumn fx:id="comparisonVehicle" text="Vehicle" prefWidth="200"/>
+     <TableColumn fx:id="comparisonEntries" text="Estimated entries" prefWidth="120"/>
+     <TableColumn fx:id="comparisonEmissions" text="Estimated CO₂ (kg)" prefWidth="150"/>
+     <TableColumn fx:id="comparisonStatus" text="Estimate coverage" prefWidth="350"/>
+    </columns>
+   </TableView>
    <Label fx:id="summary" wrapText="true" minHeight="-Infinity" styleClass="content-card" maxWidth="Infinity"/>
    <Label fx:id="status" wrapText="true" minHeight="-Infinity" styleClass="status-text"/>
    <TabPane tabClosingPolicy="UNAVAILABLE" prefHeight="390" minHeight="390">

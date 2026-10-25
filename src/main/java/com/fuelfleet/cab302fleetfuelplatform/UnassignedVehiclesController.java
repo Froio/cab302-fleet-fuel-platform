@@ -1,6 +1,9 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
+import com.fuelfleet.cab302fleetfuelplatform.service.FleetDirectoryService;
+import com.fuelfleet.cab302fleetfuelplatform.exception.AuthorizationException;
+import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -9,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.util.List;
 
 public class UnassignedVehiclesController {
     public record VehicleRow(String registration, String makeModel, String status) {}
@@ -27,12 +29,7 @@ public class UnassignedVehiclesController {
     @FXML
     private Label statusLabel;
 
-    private final List<VehicleRow> allRows = List.of(
-            new VehicleRow("ABC123", "Toyota Hilux", "Assigned"),
-            new VehicleRow("DEF456", "Mazda BT-50", "UNASSIGNED"),
-            new VehicleRow("XYZ789", "Ford Ranger", "Assigned"),
-            new VehicleRow("GHI321", "Isuzu D-Max", "UNASSIGNED")
-    );
+    private final FleetDirectoryService directoryService = new FleetDirectoryService();
 
     @FXML
     private void initialize() {
@@ -43,17 +40,25 @@ public class UnassignedVehiclesController {
         registrationColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().registration()));
         makeModelColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().makeModel()));
         statusColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().status()));
+        vehicleTable.setPlaceholder(new Label("No matching vehicles."));
         onFilter();
-        statusLabel.setText("Placeholder data - live vehicle assignments to be connected.");
     }
 
     @FXML
     private void onFilter() {
-        List<VehicleRow> rows = allRows;
-        if (unassignedOnlyBox.isSelected()) {
-            rows = allRows.stream().filter(row -> row.status().equals("UNASSIGNED")).toList();
+        try {
+            var rows = directoryService.listVehicles(unassignedOnlyBox.isSelected()).stream()
+                    .map(vehicle -> new VehicleRow(vehicle.registration(), vehicle.make() + " " + vehicle.model(),
+                            vehicle.assignedDriverId() == null ? "Unassigned" : "Assigned to " + vehicle.assignedDriverDisplay()))
+                    .toList();
+            vehicleTable.setItems(FXCollections.observableArrayList(rows));
+            statusLabel.setText(rows.size() + " vehicle(s) shown.");
+        } catch (AuthorizationException exception) {
+            HelloApplication.switchScene("login-view.fxml");
+        } catch (DataAccessException exception) {
+            vehicleTable.getItems().clear();
+            statusLabel.setText("Unable to load vehicle assignments. Try Refresh.");
         }
-        vehicleTable.setItems(FXCollections.observableArrayList(rows));
     }
 
     @FXML

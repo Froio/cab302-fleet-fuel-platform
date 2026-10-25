@@ -18,7 +18,9 @@ final class ViewAccessPolicy {
             "vehicle-list.fxml",
             "vehicle-edit.fxml",
             "vehicle-assignment.fxml",
-            "reports.fxml"
+            "reports.fxml",
+            "driver-list.fxml",
+            "unassigned-vehicles.fxml"
     );
 
     private ViewAccessPolicy() {
@@ -29,6 +31,9 @@ final class ViewAccessPolicy {
     }
 
     static String resolve(String requestedView, Optional<User> currentUser) {
+        if ("profile-edit.fxml".equals(requestedView)) {
+            return currentUser.isPresent() ? requestedView : LOGIN_VIEW;
+        }
         if (MANAGER_VIEWS.contains(requestedView)) {
             return currentUser.filter(user -> user.role() == Role.MANAGER)
                     .map(user -> requestedView)

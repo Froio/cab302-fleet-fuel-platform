@@ -24,8 +24,8 @@
             <Label text="Driver list" styleClass="section-title"/>
             <TableView fx:id="driverTable" prefHeight="430">
                 <columns>
-                    <TableColumn fx:id="nameColumn" text="Name" prefWidth="220"/>
-                    <TableColumn fx:id="vehicleColumn" text="Current Vehicle" prefWidth="180"/>
+                    <TableColumn fx:id="nameColumn" text="Driver account" prefWidth="220"/>
+                    <TableColumn fx:id="vehicleColumn" text="Assigned vehicle" prefWidth="180"/>
                     <TableColumn fx:id="statusColumn" text="Status" prefWidth="140"/>
                 </columns>
             </TableView>
@@ -35,6 +35,7 @@
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+            <Button text="Refresh" onAction="#onRefresh" styleClass="ghost-button"/>
             <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
         </HBox>
     </bottom>

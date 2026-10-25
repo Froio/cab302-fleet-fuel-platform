@@ -93,6 +93,11 @@ public class DriverDashboardController {
     }
 
     @FXML
+    private void onProfile() {
+        HelloApplication.switchScene("profile-edit.fxml");
+    }
+
+    @FXML
     private void onLogout() {
         session.signOut();
         HelloApplication.switchScene("login-view.fxml");

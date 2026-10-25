@@ -95,7 +95,8 @@ public final class DBManager {
                         cost REAL NOT NULL CHECK (cost >= 0),
                         odometer REAL NOT NULL CHECK (odometer >= 0),
                         fuel_type TEXT NOT NULL DEFAULT 'Unknown',
-                        full_tank INTEGER NOT NULL DEFAULT 0 CHECK (full_tank IN (0,1))
+                        full_tank INTEGER NOT NULL DEFAULT 0 CHECK (full_tank IN (0,1)),
+                        created_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
                     )
                     """);
             Set<String> columns = tableColumns(connection, "fuel_logs");
@@ -103,6 +104,8 @@ public final class DBManager {
                 statement.executeUpdate("ALTER TABLE fuel_logs ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
             if (!columns.contains("full_tank"))
                 statement.executeUpdate("ALTER TABLE fuel_logs ADD COLUMN full_tank INTEGER NOT NULL DEFAULT 0 CHECK (full_tank IN (0,1))");
+            if (!columns.contains("created_by_user_id"))
+                statement.executeUpdate("ALTER TABLE fuel_logs ADD COLUMN created_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL");
             statement.executeUpdate("CREATE INDEX IF NOT EXISTS ix_fuel_logs_vehicle_date ON fuel_logs(vehicle_id, date)");
         }
     }
@@ -143,7 +146,6 @@ public final class DBManager {
             }
             statement.executeUpdate("UPDATE vehicles SET fuel_type = 'Unknown' WHERE fuel_type IS NULL OR TRIM(fuel_type) = ''");
             statement.executeUpdate("UPDATE vehicles SET current_odometer = 0 WHERE current_odometer IS NULL OR current_odometer < 0");
-            statement.executeUpdate("UPDATE users SET role = 'driver' WHERE role IS NULL OR TRIM(role) = ''");
         }
     }
 
@@ -176,13 +178,16 @@ public final class DBManager {
 
             if (!columns.contains("full_name")) {
                 statement.executeUpdate(
-                        "ALTER TABLE users ADD COLUMN full_name TEXT"
+                        "ALTER TABLE users ADD COLUMN full_name TEXT NOT NULL DEFAULT ''"
                 );
+                if (columns.contains("name")) {
+                    statement.executeUpdate("UPDATE users SET full_name = COALESCE(name, '')");
+                }
             }
 
             if (!columns.contains("contact_email")) {
                 statement.executeUpdate(
-                        "ALTER TABLE users ADD COLUMN contact_email TEXT"
+                        "ALTER TABLE users ADD COLUMN contact_email TEXT NOT NULL DEFAULT ''"
                 );
             }
         }

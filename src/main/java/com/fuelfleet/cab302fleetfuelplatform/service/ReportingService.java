@@ -5,6 +5,7 @@ import com.fuelfleet.cab302fleetfuelplatform.dao.VehicleDao;
 import com.fuelfleet.cab302fleetfuelplatform.exception.AuthorizationException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +13,23 @@ import java.util.List;
 
 public final class ReportingService {
     public record Report(List<AnalyticsService.Month> months, int invalidRows) { }
-    public record VehicleEmissions(Vehicle vehicle, double totalEmissionsKg) {
+    /** NaN means unavailable, never a clean zero. Partial estimates retain explicit coverage. */
+    public record VehicleEmissions(Vehicle vehicle, double totalEmissionsKg, int estimatedEntries,
+                                   int unestimatedEntries, int invalidRows, boolean totalOutOfRange) {
+        public VehicleEmissions(Vehicle vehicle, double totalEmissionsKg) {
+            this(vehicle,totalEmissionsKg,Double.isFinite(totalEmissionsKg) ? 1 : 0,0,0,false);
+        }
+        public boolean available() { return Double.isFinite(totalEmissionsKg); }
+        public boolean complete() { return available() && unestimatedEntries == 0 && invalidRows == 0; }
+        public String status() {
+            if (totalOutOfRange) return "Unavailable — total exceeds supported range" + missingData();
+            if (estimatedEntries == 0) return "Unavailable — no estimable entries in period" + missingData();
+            return complete() ? "Complete estimate" : "Incomplete — known entries only" + missingData();
+        }
+        private String missingData() {
+            return (unestimatedEntries > 0 ? "; " + unestimatedEntries + " unsupported/out-of-range entries" : "")
+                    + (invalidRows > 0 ? "; " + invalidRows + " invalid history rows (any date)" : "");
+        }
     }
     private final AnalyticsDao dao;
     private final VehicleDao vehicleDao;
@@ -66,35 +83,48 @@ public final class ReportingService {
     }
 
     public List<VehicleEmissions> compareVehicleEmissions() {
-        if (!session.isManager()) {
-            throw new AuthorizationException("Fleet manager access is required.");
-        }
-        List<Vehicle> allVehicles = vehicleDao.listAll();
+        return compareVehicleEmissions(null,null,null);
+    }
+
+    /** Fresh records, inclusive date filters, and conservative disclosure of invalid history. */
+    public List<VehicleEmissions> compareVehicleEmissions(Integer vehicleId, LocalDate from, LocalDate to) {
+        if (!session.isManager()) throw new AuthorizationException("Fleet manager access is required.");
+        if (vehicleId != null && vehicleId <= 0) throw new IllegalArgumentException("Select a valid vehicle");
+        if (from != null && to != null && from.isAfter(to))
+            throw new IllegalArgumentException("Start date must be on or before end date");
         AnalyticsService analytics = new AnalyticsService();
         List<VehicleEmissions> results = new ArrayList<>();
-       
-        for (Vehicle v : allVehicles) {
+        for (Vehicle v : vehicleDao.listAll()) {
+            if (vehicleId != null && v.id() != vehicleId) continue;
             var records = dao.load(v.id());
-
-
-            
-            double total = 0;
-
+            BigDecimal total = BigDecimal.ZERO;
+            int estimated = 0, unestimated = 0;
             for (var row : records.rows()) {
-                var emissionsResult = analytics.emissions(row.litres(), row.fuelType());
-                if (emissionsResult.isPresent()) {
-                    total = total + emissionsResult.getAsDouble();
+                if (from != null && row.date().isBefore(from) || to != null && row.date().isAfter(to)) continue;
+                try {
+                    var emissions = analytics.emissions(row.litres(),row.fuelType());
+                    if (emissions.isPresent()) {
+                        total = total.add(BigDecimal.valueOf(emissions.getAsDouble()));
+                        estimated++;
+                    } else unestimated++;
+                } catch (IllegalArgumentException exception) {
+                    // Valid stored litres can still overflow a tailpipe estimate.
+                    unestimated++;
                 }
             }
-
-            
-
-            results.add(new VehicleEmissions(v, total));
+            boolean outOfRange = !Double.isFinite(total.doubleValue());
+            double value = estimated == 0 || outOfRange ? Double.NaN : total.doubleValue();
+            results.add(new VehicleEmissions(v,value,estimated,unestimated,records.invalidRows(),outOfRange));
         }
+        // Compare complete estimates together; never promote missing data as a clean vehicle.
+        results.sort(Comparator.comparingInt(ReportingService::comparisonGroup)
+                .thenComparing(Comparator.comparingDouble((VehicleEmissions row) ->
+                        row.available() ? row.totalEmissionsKg() : 0).reversed())
+                .thenComparing(row -> row.vehicle().registration(),String.CASE_INSENSITIVE_ORDER));
+        return List.copyOf(results);
+    }
 
-        // sort so highest emissions vehicle shows first
-        results.sort(Comparator.comparingDouble(VehicleEmissions::totalEmissionsKg).reversed());
-
-        return results;
+    public static int comparisonGroup(VehicleEmissions row) {
+        return row.complete() ? 0 : row.available() ? 1 : 2;
     }
 }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalDouble;
@@ -24,6 +25,7 @@ public final class FuelLogService {
     private final FuelLogDao fuelLogDao;
     private final VehicleDao vehicleDao;
     private final AppSession session;
+    private int skippedHistoryRowCount;
 
     public FuelLogService() {
         this(new FuelLogDao(), new VehicleDao(), AppSession.getInstance());
@@ -45,16 +47,24 @@ public final class FuelLogService {
         List<Integer> vehicleIds = vehicleDao.listByDriverId(driver.id()).stream()
                 .map(Vehicle::id)
                 .toList();
-        List<FuelLog> logs = fuelLogDao.listByVehicleIds(vehicleIds);
+        FuelLogDao.HistoryLoad loaded = fuelLogDao.loadHistory(vehicleIds);
+        skippedHistoryRowCount = loaded.skippedRows();
+        List<FuelLog> logs = loaded.logs();
         Map<Integer, TankInterval> intervals = new HashMap<>();
         List<FuelHistoryEntry> history = new ArrayList<>(logs.size());
         for (FuelLog log : logs) {
             TankInterval interval = intervals.computeIfAbsent(log.vehicleId(), ignored -> new TankInterval());
-            OptionalDouble efficiency = interval.accept(log);
-            history.add(new FuelHistoryEntry(log, efficiency));
+            history.add(loaded.incompleteVehicleIds().contains(log.vehicleId())
+                    ? new FuelHistoryEntry(log, OptionalDouble.empty(), OptionalDouble.empty())
+                    : interval.accept(log));
         }
         Collections.reverse(history);
         return List.copyOf(history);
+    }
+
+    public int skippedHistoryRowCount() {
+        requireDriver();
+        return skippedHistoryRowCount;
     }
 
     public FuelLog save(
@@ -79,7 +89,7 @@ public final class FuelLogService {
         if (previousOdometer.isPresent() && odometer <= previousOdometer.getAsDouble()) {
             throw new ValidationException("Odometer must be greater than the latest fuel log reading.");
         }
-        if (previousOdometer.isEmpty() && odometer < vehicle.currentOdometer()) {
+        if (odometer < vehicle.currentOdometer()) {
             throw new ValidationException("Odometer cannot be below the vehicle's current reading.");
         }
 
@@ -90,29 +100,41 @@ public final class FuelLogService {
             throw new ValidationException(exception.getMessage());
         }
         return fuelLogDao.save(vehicleId, validatedDate, litres, cost, odometer,
-                vehicle.fuelType(), fullTank);
+                vehicle.fuelType(), fullTank, driver.id());
+    }
+
+    public void delete(int logId) {
+        User driver = requireDriver();
+        fuelLogDao.delete(logId, driver.id());
     }
 
     public String exportHistoryToCsv() {
         List<FuelHistoryEntry> history = listHistory();
         StringBuilder csv = new StringBuilder();
-        csv.append("Date,Vehicle,Litres,Cost,Odometer,Efficiency (L/100km)\n");
+        csv.append("Date,Vehicle,Litres,Cost,Odometer,Efficiency (L/100km),Cost per km\n");
 
         for (FuelHistoryEntry entry : history) {
             FuelLog log = entry.log();
             String efficiency = entry.litresPer100Km().isPresent()
-                    ? String.format("%.2f", entry.litresPer100Km().getAsDouble())
+                    ? String.format(Locale.ROOT, "%.2f", entry.litresPer100Km().getAsDouble())
                     : "N/A";
 
             csv.append(log.date()).append(",");
-            csv.append(log.vehicleRegistration()).append(",");
+            csv.append(csvField(log.vehicleRegistration())).append(",");
             csv.append(log.litres()).append(",");
             csv.append(log.cost()).append(",");
             csv.append(log.odometer()).append(",");
-            csv.append(efficiency).append("\n");
+            csv.append(efficiency).append(",");
+            csv.append(entry.costPerKm().isPresent()
+                    ? String.format(Locale.ROOT, "%.4f", entry.costPerKm().getAsDouble()) : "N/A").append("\n");
         }
 
         return csv.toString();
+    }
+
+    private static String csvField(String value) {
+        return value.contains(",") || value.contains("\"") || value.contains("\r") || value.contains("\n")
+                ? "\"" + value.replace("\"", "\"\"") + "\"" : value;
     }
 
     private User requireDriver() {
@@ -187,27 +209,35 @@ public final class FuelLogService {
         private Double baselineOdometer;
         private Double lastOdometer;
         private double litres;
+        private double cost;
 
-        private OptionalDouble accept(FuelLog log) {
+        private FuelHistoryEntry accept(FuelLog log) {
             if (lastOdometer != null && log.odometer() <= lastOdometer) {
                 baselineOdometer = null;
                 litres = 0;
+                cost = 0;
             }
             lastOdometer = log.odometer();
             if (baselineOdometer != null) {
                 litres += log.litres();
+                cost += log.cost();
             }
 
             OptionalDouble efficiency = OptionalDouble.empty();
+            OptionalDouble costPerKm = OptionalDouble.empty();
             if (log.fullTank()) {
                 if (baselineOdometer != null) {
-                    efficiency = OptionalDouble.of(FuelCalculations.litresPer100Km(
-                            litres, baselineOdometer, log.odometer()));
+                    double distance = log.odometer() - baselineOdometer;
+                    double calculatedEfficiency = litres / distance * 100;
+                    double calculatedCost = cost / distance;
+                    if (Double.isFinite(calculatedEfficiency)) efficiency = OptionalDouble.of(calculatedEfficiency);
+                    if (Double.isFinite(calculatedCost)) costPerKm = OptionalDouble.of(calculatedCost);
                 }
                 baselineOdometer = log.odometer();
                 litres = 0;
+                cost = 0;
             }
-            return efficiency;
+            return new FuelHistoryEntry(log, efficiency, costPerKm);
         }
     }
 }

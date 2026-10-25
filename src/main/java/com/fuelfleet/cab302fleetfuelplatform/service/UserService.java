@@ -7,6 +7,7 @@ import com.fuelfleet.cab302fleetfuelplatform.exception.DuplicateUsernameExceptio
 import com.fuelfleet.cab302fleetfuelplatform.exception.ValidationException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Role;
 import com.fuelfleet.cab302fleetfuelplatform.model.User;
+import com.fuelfleet.cab302fleetfuelplatform.model.UserProfile;
 import com.fuelfleet.cab302fleetfuelplatform.PasswordHasher;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
 
@@ -71,6 +72,19 @@ public final class UserService {
         if (!userDao.delete(userId)) {
             throw new ValidationException("The selected user no longer exists.");
         }
+    }
+
+    public UserProfile currentProfile() {
+        User current = session.currentUser().orElseThrow(
+                () -> new AuthorizationException("Please sign in to edit your profile."));
+        UserDao.Profile profile = userDao.findProfileById(current.id()).orElseThrow(
+                () -> new AuthorizationException("Your account is no longer available. Please sign in again."));
+        return new UserProfile(profile.userId(), profile.fullName(), profile.contactEmail());
+    }
+
+    public UserProfile updateCurrentProfile(String name, String contactEmail) {
+        updateMyProfile(name, contactEmail);
+        return currentProfile();
     }
 
     public UserDao.Profile getMyProfile() {

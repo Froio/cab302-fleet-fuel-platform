@@ -20,6 +20,11 @@ public final class ReportsController {
     @FXML private TableColumn<ReportingService.VehicleExpenditure,String> expenseVehicle;
     @FXML private TableColumn<ReportingService.VehicleExpenditure,Number> expenseEntries;
     @FXML private TableColumn<ReportingService.VehicleExpenditure,java.math.BigDecimal> expenseCost;
+    @FXML private TableView<ReportingService.VehicleEmissions> comparisonTable;
+    @FXML private TableColumn<ReportingService.VehicleEmissions,String> comparisonVehicle;
+    @FXML private TableColumn<ReportingService.VehicleEmissions,Number> comparisonEntries;
+    @FXML private TableColumn<ReportingService.VehicleEmissions,Double> comparisonEmissions;
+    @FXML private TableColumn<ReportingService.VehicleEmissions,String> comparisonStatus;
     private final javafx.animation.Timeline refreshTimer = new javafx.animation.Timeline(
             new javafx.animation.KeyFrame(javafx.util.Duration.seconds(5), event -> {
                 if (!fromDate.getEditor().isFocused() && !toDate.getEditor().isFocused()
@@ -42,6 +47,34 @@ public final class ReportsController {
             }
         });
         expenditureTable.setPlaceholder(new Label("No vehicles for this selection."));
+        comparisonVehicle.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyStringWrapper(row.getValue().vehicle().toString()));
+        comparisonEntries.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyIntegerWrapper(row.getValue().estimatedEntries()));
+        comparisonEmissions.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyObjectWrapper<>(
+                row.getValue().available() ? row.getValue().totalEmissionsKg() : null));
+        comparisonEmissions.setCellFactory(column -> new TableCell<>() {
+            @Override protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value,empty);
+                setText(empty ? null : value == null ? "Unavailable" : String.format(Locale.ROOT,"%,.2f",value));
+            }
+        });
+        comparisonStatus.setCellValueFactory(row -> new javafx.beans.property.ReadOnlyStringWrapper(row.getValue().status()));
+        comparisonStatus.setCellFactory(column -> new TableCell<>() {
+            private final Label text = new Label();
+            { text.setWrapText(true); text.maxWidthProperty().bind(widthProperty().subtract(16)); }
+            @Override protected void updateItem(String value, boolean empty) {
+                super.updateItem(value,empty);
+                text.setText(empty ? null : value);
+                setGraphic(empty ? null : text);
+            }
+        });
+        comparisonTable.setPlaceholder(new Label("No vehicles for this selection."));
+        comparisonTable.setFixedCellSize(64);
+        comparisonTable.setSortPolicy(table -> {
+            var selectedSort = table.getComparator();
+            if (selectedSort != null) javafx.collections.FXCollections.sort(table.getItems(),
+                    java.util.Comparator.comparingInt(ReportingService::comparisonGroup).thenComparing(selectedSort));
+            return true;
+        });
         refreshTimer.setCycleCount(javafx.animation.Animation.INDEFINITE);
         summary.sceneProperty().addListener((observable,oldScene,newScene) -> {
             refreshTimer.stop();
@@ -60,13 +93,17 @@ public final class ReportsController {
         efficiencyChart.getData().clear();
         summary.setText("");
         expenditureTable.getItems().clear();
+        comparisonTable.getItems().clear();
         expenditureTotal.setText("");
         try {
             var selected = vehicle.getValue();
             LocalDate from = date(fromDate), to = date(toDate);
             Integer vehicleId = selected == null ? null : selected.id();
+            comparisonTable.getItems().setAll(reporting.compareVehicleEmissions(vehicleId,from,to));
+            comparisonTable.sort();
             var expenditure = reporting.expenditure(vehicleId,from,to);
             expenditureTable.getItems().setAll(expenditure.vehicles());
+            expenditureTable.sort();
             expenditureTotal.setText((selected == null ? "Fleet total" : selected.registration() + " total")
                     + ": $" + expenditure.total().setScale(2,java.math.RoundingMode.HALF_UP).toPlainString()
                     + " AUD" + (expenditure.invalidRows() > 0 ? " (valid records only)" : ""));

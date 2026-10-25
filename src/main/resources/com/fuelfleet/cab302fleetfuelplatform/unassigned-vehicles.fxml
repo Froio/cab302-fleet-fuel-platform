@@ -22,7 +22,7 @@
     <center>
         <VBox spacing="10">
             <padding><Insets top="18" right="30" bottom="12" left="30"/></padding>
-            <CheckBox fx:id="unassignedOnlyBox" text="Show unassigned vehicles only" onAction="#onFilter"/>
+            <CheckBox fx:id="unassignedOnlyBox" text="Show unassigned vehicles only" selected="true" onAction="#onFilter"/>
             <TableView fx:id="vehicleTable" prefHeight="400">
                 <columns>
                     <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="160"/>
@@ -36,6 +36,7 @@
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+            <Button text="Refresh" onAction="#onFilter" styleClass="ghost-button"/>
             <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
         </HBox>
     </bottom>

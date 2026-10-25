@@ -3,6 +3,7 @@ package com.fuelfleet.cab302fleetfuelplatform.dao;
 import com.fuelfleet.cab302fleetfuelplatform.db.ConnectionProvider;
 import com.fuelfleet.cab302fleetfuelplatform.db.DBManager;
 import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
+import com.fuelfleet.cab302fleetfuelplatform.exception.ValidationException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 
 import javax.xml.transform.Result;
@@ -131,7 +132,10 @@ public class VehicleDao {
         String sql = """
                 UPDATE vehicles
                 SET registration = ?, make = ?, model = ?, fuel_type = ?, current_odometer = ?
-                WHERE id = ?
+                WHERE id = ? AND ? >= COALESCE(
+                    (SELECT MAX(odometer) FROM fuel_logs WHERE vehicle_id = vehicles.id
+                     AND typeof(odometer) IN ('integer', 'real')
+                     AND odometer >= 0 AND odometer <= 1.7976931348623157e308), 0)
                 """;
         try (Connection connection = connectionProvider.open();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -141,7 +145,16 @@ public class VehicleDao {
             statement.setString(4, fuelType);
             statement.setLong(5, currentOdometer);
             statement.setInt(6, vehicleId);
-            return statement.executeUpdate() == 1;
+            statement.setLong(7, currentOdometer);
+            if (statement.executeUpdate() == 1) return true;
+            try (PreparedStatement exists = connection.prepareStatement("SELECT 1 FROM vehicles WHERE id = ?")) {
+                exists.setInt(1, vehicleId);
+                try (ResultSet rows = exists.executeQuery()) {
+                    if (rows.next()) throw new ValidationException(
+                            "Current odometer cannot be below the highest fuel log reading.");
+                }
+            }
+            return false;
         } catch (SQLException exception) {
             throw new DataAccessException("Unable to update vehicle", exception);
         }

@@ -64,11 +64,13 @@
             <padding><Insets top="18" right="30" bottom="20" left="0"/></padding>
             <HBox alignment="CENTER_LEFT" spacing="16">
                 <Label text="Fuel history" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="deleteHistoryButton" text="Delete selected" onAction="#onDelete" styleClass="ghost-button"/>
                 <Button text="Export CSV" onAction="#onExportCsv"/>
             </HBox>
+            <Label fx:id="historyWarningLabel" wrapText="true" visible="false" managed="false" styleClass="status-text"/>
             <TableView fx:id="historyTable" prefHeight="570" VBox.vgrow="ALWAYS">
                 <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
+                    <TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY"/>
                 </columnResizePolicy>
                 <columns>
                     <TableColumn fx:id="dateColumn" text="Date" prefWidth="92"/>
@@ -77,6 +79,7 @@
                     <TableColumn fx:id="costColumn" text="Total Cost" prefWidth="90"/>
                     <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="100"/>
                     <TableColumn fx:id="efficiencyColumn" text="L/100km" prefWidth="90"/>
+                    <TableColumn fx:id="costPerKmColumn" text="Cost/km" prefWidth="90"/>
                     <TableColumn fx:id="fullTankColumn" text="Full Tank" prefWidth="80"/>
                 </columns>
             </TableView>

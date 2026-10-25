@@ -6,6 +6,8 @@ import tempfile
 
 root = Path(__file__).resolve().parents[1]
 wrapper = [str(root / "mvnw.cmd")] if os.name == "nt" else ["bash", str(root / "mvnw")]
+java_home = os.environ.get("JAVA_HOME")
+java = str(Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")) if java_home else "java"
 with tempfile.TemporaryDirectory(prefix="fleet-report-smoke-") as temporary:
     demo = Path(temporary)
     classpath_file = demo / "classpath.txt"
@@ -15,5 +17,5 @@ with tempfile.TemporaryDirectory(prefix="fleet-report-smoke-") as temporary:
         str(root / "target/classes"), classpath_file.read_text().strip()])
     output = root / "docs/verification"
     output.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["java", "-Dfleet.disposableDemo=true", "-cp", classpath,
+    subprocess.run([java, "-Dfleet.disposableDemo=true", "-Djavafx.cachedir=" + str(demo / "javafx-cache"), "-cp", classpath,
         "com.fuelfleet.cab302fleetfuelplatform.ReportsSmokeMain", str(output)], cwd=demo, check=True)

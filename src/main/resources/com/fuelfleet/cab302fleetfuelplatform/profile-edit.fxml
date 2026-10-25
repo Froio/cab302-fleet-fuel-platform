@@ -31,7 +31,7 @@
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
             <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
-            <Button text="Save changes" onAction="#onSave" styleClass="primary-button"/>
+            <Button fx:id="saveButton" text="Save changes" onAction="#onSave" styleClass="primary-button"/>
         </HBox>
     </bottom>
 </BorderPane>

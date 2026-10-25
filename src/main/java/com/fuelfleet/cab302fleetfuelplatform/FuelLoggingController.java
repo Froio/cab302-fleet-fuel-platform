@@ -12,6 +12,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -25,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -48,6 +52,10 @@ public final class FuelLoggingController {
     @FXML
     private Label statusLabel;
     @FXML
+    private Label historyWarningLabel;
+    @FXML
+    private Button deleteHistoryButton;
+    @FXML
     private TableView<FuelHistoryEntry> historyTable;
     @FXML
     private TableColumn<FuelHistoryEntry, String> dateColumn;
@@ -63,6 +71,8 @@ public final class FuelLoggingController {
     private TableColumn<FuelHistoryEntry, String> efficiencyColumn;
     @FXML
     private TableColumn<FuelHistoryEntry, String> fullTankColumn;
+    @FXML
+    private TableColumn<FuelHistoryEntry, String> costPerKmColumn;
 
     private final FuelLogOperations operations;
     private final AppSession session;
@@ -148,6 +158,31 @@ public final class FuelLoggingController {
     }
 
     @FXML
+    void onDelete() {
+        FormAccess form = form();
+        FuelHistoryEntry selected = form.selectedHistoryEntry();
+        if (selected == null) {
+            form.setStatus("Select a fuel log to delete.");
+            return;
+        }
+        if (!form.confirmDeletion(selected)) return;
+        try {
+            operations.delete(selected.log().id());
+        } catch (ValidationException | DataAccessException exception) {
+            form.setStatus(exception.getMessage());
+            return;
+        }
+        try {
+            form.showData(loadData(selected.log().vehicleId()));
+            form.setStatus("Fuel log deleted. The vehicle's current odometer is unchanged.");
+        } catch (AuthorizationException exception) {
+            returnToLogin();
+        } catch (DataAccessException exception) {
+            form.setStatus("Fuel log deleted, but history refresh failed: " + exception.getMessage());
+        }
+    }
+
+    @FXML
     void onExportCsv() {
         String csvContent;
         try {
@@ -172,7 +207,7 @@ public final class FuelLoggingController {
             return;
         }
 
-        try (FileWriter writer = new FileWriter(file)) {
+        try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             writer.write(csvContent);
             form().setStatus("Fuel history exported to " + file.getName());
         } catch (IOException exception) {
@@ -189,6 +224,7 @@ public final class FuelLoggingController {
 
     
     private void configureHistoryTable() {
+        deleteHistoryButton.disableProperty().bind(historyTable.getSelectionModel().selectedItemProperty().isNull());
         dateColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
                 row.getValue().log().date().toString()));
         registrationColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
@@ -206,11 +242,18 @@ public final class FuelLoggingController {
                         : "—"));
         fullTankColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
                 row.getValue().log().fullTank() ? "Yes" : "No"));
+        costPerKmColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
+                row.getValue().costPerKm().isPresent()
+                        ? String.format(Locale.ROOT, "$%.4f", row.getValue().costPerKm().getAsDouble())
+                        : "—"));
     }
 
     private ScreenData loadData(Integer preferredVehicleId) {
         List<Vehicle> vehicles = operations.listAssignedVehicles();
         List<FuelHistoryEntry> history = operations.listHistory();
+        int skippedRows = operations.skippedHistoryRowCount();
+        form().setHistoryWarning(skippedRows == 0 ? ""
+                : skippedRows + " invalid fuel log(s) excluded. Interval metrics for affected vehicles are unavailable.");
         Vehicle selectedVehicle = vehicles.stream()
                 .filter(vehicle -> Objects.equals(vehicle.id(), preferredVehicleId))
                 .findFirst()
@@ -261,6 +304,12 @@ public final class FuelLoggingController {
                 boolean fullTank
         );
         String exportHistoryToCsv();
+
+        default void delete(int logId) {
+            throw new UnsupportedOperationException("Fuel log deletion is unavailable.");
+        }
+
+        default int skippedHistoryRowCount() { return 0; }
     }
 
     interface FormAccess {
@@ -283,6 +332,12 @@ public final class FuelLoggingController {
         void clearNumericInputs();
 
         void setStatus(String status);
+
+        default FuelHistoryEntry selectedHistoryEntry() { return null; }
+
+        default boolean confirmDeletion(FuelHistoryEntry entry) { return false; }
+
+        default void setHistoryWarning(String warning) { }
     }
 
     record ScreenData(
@@ -329,6 +384,12 @@ public final class FuelLoggingController {
         public String exportHistoryToCsv() {
             return service.exportHistoryToCsv();
         }
+
+        @Override
+        public void delete(int logId) { service.delete(logId); }
+
+        @Override
+        public int skippedHistoryRowCount() { return service.skippedHistoryRowCount(); }
     }
 
     private final class JavaFxForm implements FormAccess {
@@ -387,6 +448,30 @@ public final class FuelLoggingController {
         @Override
         public void setStatus(String status) {
             statusLabel.setText(status);
+        }
+
+        @Override
+        public FuelHistoryEntry selectedHistoryEntry() {
+            return historyTable.getSelectionModel().getSelectedItem();
+        }
+
+        @Override
+        public boolean confirmDeletion(FuelHistoryEntry entry) {
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Delete the fuel log for " + entry.log().vehicleRegistration() + " on " + entry.log().date()
+                            + "? This cannot be undone. The vehicle's current odometer will stay unchanged.",
+                    ButtonType.OK, ButtonType.CANCEL);
+            confirmation.setTitle("Delete fuel log");
+            confirmation.setHeaderText("Delete selected fuel log?");
+            confirmation.initOwner(historyTable.getScene().getWindow());
+            return confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+        }
+
+        @Override
+        public void setHistoryWarning(String warning) {
+            historyWarningLabel.setText(warning);
+            historyWarningLabel.setVisible(!warning.isEmpty());
+            historyWarningLabel.setManaged(!warning.isEmpty());
         }
     }
 }

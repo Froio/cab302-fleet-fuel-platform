@@ -8,6 +8,9 @@ public record FuelRecord(int vehicleId, LocalDate date, double litres, double co
                          double odometer, String fuelType, boolean fullTank) {
     public FuelRecord {
         Objects.requireNonNull(date, "Date is required");
+        if (date.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date cannot be in the future");
+        }
         if (vehicleId <= 0 || !Double.isFinite(litres) || litres <= 0
                 || !Double.isFinite(cost) || cost < 0
                 || !Double.isFinite(odometer) || odometer < 0) {
