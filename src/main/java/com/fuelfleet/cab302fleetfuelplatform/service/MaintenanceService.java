@@ -12,7 +12,7 @@ import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
 
 public final class MaintenanceService {
 
-        private final VehicleDao vehicleDao;
+        private final MaintenanceVehicleRepository vehicleRepository;
         private final AppSession session;
         private final MaintenancePolicy maintenancePolicy;
 
@@ -21,31 +21,48 @@ public final class MaintenanceService {
 
 }
 
-public MaintenanceService(VehicleDao vehicleDao, AppSession session) {
-    this(
-            vehicleDao,
-            session,
-            new StandardMaintenancePolicy()
-    );
+public MaintenanceService (VehicleDao vehicleDao, AppSession session) {
+            this(
+                    vehicleDao,
+                    session,
+                    new StandardMaintenancePolicy()
+            );
 }
-
-public MaintenanceService (
+public MaintenanceService(
         VehicleDao vehicleDao,
         AppSession session,
         MaintenancePolicy maintenancePolicy
 ) {
-            this.vehicleDao = vehicleDao;
-            this.session = session;
+            this(
+                    new DaoMaintenanceVehicleRepository(vehicleDao),
+                    session,
+                    maintenancePolicy
+            );
+}
+
+public MaintenanceService(
+        MaintenanceVehicleRepository vehicleRepository,
+        AppSession session,
+        MaintenancePolicy maintenancePolicy
+) {
+            this.vehicleRepository = java.util.Objects.requireNonNull(
+                    vehicleRepository,
+                    "vehicle repository cannot be null"
+            );
+            this.session = java.util.Objects.requireNonNull(
+                    session,
+                    "Session cannot be null"
+            );
+
             this.maintenancePolicy = java.util.Objects.requireNonNull(
                     maintenancePolicy,
                     "Maintenance policy cannot be null"
             );
 }
-
 public void clearServiceSchedule(int vehicleId) {
             requireManager();
 
-            if(!vehicleDao.updateNextServiceOdometer(vehicleId,null)) {
+            if(!vehicleRepository.updateNextServiceOdometer(vehicleId,null)) {
                 throw new ValidationException(
                         "the selected vehicle no longer exists."
                 );
@@ -62,7 +79,7 @@ public void scheduleService(int vehicleId, long nextServiceOdometer) {
                 );
             }
 
-            if (!vehicleDao.updateNextServiceOdometer(
+            if (!vehicleRepository.updateNextServiceOdometer(
                 vehicleId,nextServiceOdometer)) {
                 throw new ValidationException(
                         "The selected vehicle no longer exists."
@@ -73,13 +90,13 @@ public void scheduleService(int vehicleId, long nextServiceOdometer) {
 public Long getNextServiceOdometer(int vehucleId) {
             requireManager();
 
-            if (vehicleDao.findById(vehucleId).isEmpty()){
+            if (vehicleRepository.findById(vehucleId).isEmpty()){
                 throw new ValidationException(
                         "The selected vehicle no longer exists"
                 );
             }
 
-            return vehicleDao.findNextServiceOdometer(vehucleId)
+            return vehicleRepository.findNextServiceOdometer(vehucleId)
                     .orElse(null);
 }
 
@@ -93,7 +110,7 @@ public Long getNextServiceOdometerForCurrentDriver(int vehicleId) {
                         "Driver access is required."
                 );
             }
-            Vehicle vehicle = vehicleDao.findById(vehicleId).orElseThrow(
+            Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(
                     () -> new ValidationException(
                             "The selected vehicle no longer exists."
                     )
@@ -105,7 +122,7 @@ public Long getNextServiceOdometerForCurrentDriver(int vehicleId) {
                         "You cannot view this vehicle's maintenance schedule."
                 );
             }
-            return vehicleDao.findNextServiceOdometer(vehicleId)
+            return vehicleRepository.findNextServiceOdometer(vehicleId)
                     .orElse(null);
 }
 
@@ -115,7 +132,7 @@ public MaintenanceStatus getMaintenanceStatus(int vehicleId) {
 
             );
 
-            Vehicle vehicle = vehicleDao.findById(vehicleId).orElseThrow(
+            Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(
                     ( )-> new ValidationException(
                             "The selected vehicle no longer exists."
                     )
@@ -131,7 +148,7 @@ public MaintenanceStatus getMaintenanceStatus(int vehicleId) {
                 }
             }
 
-            Long nextServiceOdometer = vehicleDao
+            Long nextServiceOdometer = vehicleRepository
                     .findNextServiceOdometer(vehicleId)
                     .orElse(null);
 
