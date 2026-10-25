@@ -115,6 +115,12 @@ public final class FuelLoggingController {
     @FXML
     void onSave() {
         FormAccess form = form();
+
+        if (injectedForm == null) {
+            litresField.getStyleClass().remove("input-errorr");
+            pricePerLitreField.getStyleClass().remove("input-error");
+            odometerField.getStyleClass().remove("input-error");
+        }
         Vehicle selectedVehicle = form.selectedVehicle();
         if (selectedVehicle == null) {
             form.setStatus("Select an assigned vehicle.");
@@ -132,11 +138,21 @@ public final class FuelLoggingController {
         } catch (AuthorizationException exception) {
             returnToLogin();
             return;
-        } catch (ValidationException | DataAccessException exception) {
+        } catch (ValidationException exception) {
+            form.setStatus(exception.getMessage());
+            highlightInvalidField(exception.getMessage());
+            return;
+        } catch (DataAccessException exception) {
             form.setStatus(exception.getMessage());
             return;
         }
         form.clearNumericInputs();
+
+        if (injectedForm == null) {
+            litresField.getStyleClass().remove("input-error");
+            pricePerLitreField.getStyleClass().remove("input-error");
+            odometerField.getStyleClass().remove("input-error");
+        }
         try {
             form.showData(loadData(selectedVehicle.id()));
             form.setStatus("Fuel log saved.");
@@ -179,6 +195,32 @@ public final class FuelLoggingController {
             form().setStatus("Export failed: " + exception.getMessage());
         }
     }
+
+   private void highlightInvalidField(String message) {
+        if (message == null || injectedForm != null) {
+            return;
+        }
+
+        litresField.getStyleClass().remove("input-error");
+        pricePerLitreField.getStyleClass().remove("input-error");
+        odometerField.getStyleClass().remove("input-error");
+
+        TextField invalidField = null;
+        String error = message.toLowerCase(Locale.ROOT);
+
+        if (error.contains("litres")) {
+            invalidField = litresField;
+        } else if (error.contains("price")) {
+            invalidField = pricePerLitreField;
+        } else if (error.contains("odometer")){
+            invalidField =odometerField;
+        }
+
+        if (invalidField != null) {
+            invalidField.getStyleClass().add("input-error");
+            invalidField.requestFocus();;
+        }
+   }
 
     @FXML
     private void onBack() {
