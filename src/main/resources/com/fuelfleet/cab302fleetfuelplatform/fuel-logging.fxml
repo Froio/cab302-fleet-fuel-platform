@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -14,49 +15,56 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefWidth="1000" prefHeight="700" xmlns:fx="http://javafx.com/fxml"
+<BorderPane prefWidth="1000" prefHeight="700" xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.FuelLoggingController">
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="18">
-            <padding><Insets top="18" right="24" bottom="14" left="24"/></padding>
-            <Button text="Back" onAction="#onBack" prefWidth="90"/>
-            <Label text="Fuel logging" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+        <HBox alignment="CENTER_LEFT" spacing="18" styleClass="top-bar">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="FUEL ACTIVITY" styleClass="eyebrow"/>
+                <Label text="Fuel logging" styleClass="page-title"/>
+                <Label text="Record a fill-up and review your vehicle history." styleClass="page-subtitle"/>
+            </VBox>
+            <Button text="Back" onAction="#onBack" styleClass="ghost-button"/>
         </HBox>
     </top>
     <left>
-        <VBox spacing="14" prefWidth="320">
-            <padding><Insets top="10" right="20" bottom="20" left="24"/></padding>
-            <Label text="Add a fuel log" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
-            <GridPane hgap="10" vgap="12">
-                <Label text="Date" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <DatePicker fx:id="datePicker" prefWidth="180" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                <Label text="Vehicle" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="vehicleComboBox" prefWidth="180" promptText="Select vehicle"
-                          GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                <Label text="Litres" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <TextField fx:id="litresField" promptText="0.00" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                <Label text="Price per litre" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="pricePerLitreField" promptText="0.00"
-                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                <Label text="Total cost" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <Label fx:id="totalCostLabel" style="-fx-font-weight:bold;"
-                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                <Label text="Odometer" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                <TextField fx:id="odometerField" promptText="Whole kilometres"
-                           GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-                <CheckBox fx:id="fullTankCheckBox" text="Full tank" selected="true"
-                          GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-            </GridPane>
-            <Button text="Save Fuel Log" onAction="#onSave" prefWidth="160"/>
-            <Label fx:id="statusLabel" wrapText="true" minHeight="44" textFill="#555555"/>
-        </VBox>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="340" styleClass="form-scroll">
+            <BorderPane.margin><Insets top="18" right="18" bottom="20" left="30"/></BorderPane.margin>
+            <content>
+                <VBox spacing="14" prefWidth="320" styleClass="content-card">
+                    <Label text="New fill-up" styleClass="section-title"/>
+                    <GridPane hgap="10" vgap="12">
+                        <Label text="Date" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="datePicker" prefWidth="180" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Vehicle" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="vehicleComboBox" prefWidth="180" promptText="Select vehicle"
+                                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Litres" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="litresField" promptText="0.00" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Price per litre" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="pricePerLitreField" promptText="0.00"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label text="Total cost" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label fx:id="totalCostLabel" styleClass="section-title"
+                               GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <Label text="Odometer" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <TextField fx:id="odometerField" promptText="Whole kilometres"
+                                   GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                        <CheckBox fx:id="fullTankCheckBox" text="Full tank" selected="true"
+                                  GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Button text="Save fuel log" onAction="#onSave" maxWidth="Infinity" styleClass="primary-button"/>
+                    <Label fx:id="statusLabel" wrapText="true" minHeight="44" styleClass="status-text"/>
+                </VBox>
+            </content>
+        </ScrollPane>
     </left>
     <center>
         <VBox spacing="10">
-            <padding><Insets top="10" right="24" bottom="20" left="8"/></padding>
+            <padding><Insets top="18" right="30" bottom="20" left="0"/></padding>
             <HBox alignment="CENTER_LEFT" spacing="16">
-                <Label text="Fuel history" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
-                <Button text="Export CSV" onAction="#onExportCsv" prefWidth="120"/>
+                <Label text="Fuel history" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Button text="Export CSV" onAction="#onExportCsv"/>
             </HBox>
             <TableView fx:id="historyTable" prefHeight="570" VBox.vgrow="ALWAYS">
                 <columnResizePolicy>

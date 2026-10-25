@@ -1,6 +1,7 @@
 package com.fuelfleet.cab302fleetfuelplatform;
 
 import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
+import com.fuelfleet.cab302fleetfuelplatform.service.MaintenanceService;
 import com.fuelfleet.cab302fleetfuelplatform.exception.ValidationException;
 import com.fuelfleet.cab302fleetfuelplatform.service.VehicleService;
 import com.fuelfleet.cab302fleetfuelplatform.session.AppSession;
@@ -32,6 +33,10 @@ public class VehicleListController {
     @FXML
     private TableColumn<Vehicle, Number> odometerColumn;
     @FXML
+    private TableColumn<Vehicle, String> nextServiceColumn;
+    @FXML
+    private TableColumn<Vehicle, String> maintenanceStatusColumn;
+    @FXML
     private TableColumn<Vehicle, String> driverColumn;
     @FXML
     private TableColumn<Vehicle, String> dateAddedColumn;
@@ -39,6 +44,8 @@ public class VehicleListController {
     private Label statusLabel;
 
     private final VehicleService vehicleService = new VehicleService();
+
+    private final MaintenanceService maintenanceService = new MaintenanceService();
 
     @FXML
     private void initialize() {
@@ -52,9 +59,28 @@ public class VehicleListController {
         modelColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().model()));
         fuelTypeColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().fuelType()));
         odometerColumn.setCellValueFactory(row -> new ReadOnlyLongWrapper(row.getValue().currentOdometer()));
+        nextServiceColumn.setCellValueFactory(row -> {
+            Long nextService = maintenanceService.getNextServiceOdometer(
+                    row.getValue().id()
+            );
+            return new ReadOnlyStringWrapper(
+                    nextService == null ? "Not Scheduled" : Long.toString(nextService)
+            );
+        });
+
+        maintenanceStatusColumn.setCellValueFactory(row ->{
+            String status = maintenanceService
+                    .getMaintenanceStatus(row.getValue().id())
+                    .name()
+                    .replace('_', ' ');
+
+            return new ReadOnlyStringWrapper(status);
+        });
+
         driverColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().assignedDriverDisplay()));
-        dateAddedColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().dateAdded().toString()));
+        dateAddedColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().dateAddedDisplay()));
         reloadVehicles();
+
     }
 
     @FXML

@@ -10,18 +10,18 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@fleet-theme.css" styleClass="app-root"
             fx:controller="com.fuelfleet.cab302fleetfuelplatform.UnassignedVehiclesController">
     <top>
-        <VBox spacing="6">
-            <padding><Insets top="20" right="24" bottom="14" left="24"/></padding>
-            <Label text="Unassigned Vehicles" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-            <Label text="See which vehicles are available to allocate to a driver."/>
+        <VBox spacing="6" styleClass="top-bar">
+            <Label text="FLEET AVAILABILITY" styleClass="eyebrow"/>
+            <Label text="Unassigned vehicles" styleClass="page-title"/>
+            <Label text="See which vehicles are available to allocate to a driver." styleClass="page-subtitle"/>
         </VBox>
     </top>
     <center>
         <VBox spacing="10">
-            <padding><Insets right="24" bottom="12" left="24"/></padding>
+            <padding><Insets top="18" right="30" bottom="12" left="30"/></padding>
             <CheckBox fx:id="unassignedOnlyBox" text="Show unassigned vehicles only" onAction="#onFilter"/>
             <TableView fx:id="vehicleTable" prefHeight="400">
                 <columns>
@@ -30,13 +30,13 @@
                     <TableColumn fx:id="statusColumn" text="Status" prefWidth="160"/>
                 </columns>
             </TableView>
-            <Label fx:id="statusLabel" wrapText="true"/>
+            <Label fx:id="statusLabel" wrapText="true" styleClass="status-text"/>
         </VBox>
     </center>
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT">
-            <padding><Insets top="8" right="24" bottom="20" left="24"/></padding>
-            <Button text="Back to Dashboard" onAction="#onBack"/>
+            <padding><Insets top="8" right="30" bottom="24" left="30"/></padding>
+            <Button text="Back to dashboard" onAction="#onBack" styleClass="ghost-button"/>
         </HBox>
     </bottom>
 </BorderPane>

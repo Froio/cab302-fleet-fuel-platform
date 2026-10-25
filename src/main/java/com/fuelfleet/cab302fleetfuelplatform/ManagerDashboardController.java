@@ -46,6 +46,11 @@ public class ManagerDashboardController {
     }
 
     @FXML
+    private void onProfile() {
+        HelloApplication.switchScene("profile-edit.fxml");
+    }
+
+    @FXML
     private void onLogout() {
         AppSession.getInstance().signOut();
         HelloApplication.switchScene("login-view.fxml");

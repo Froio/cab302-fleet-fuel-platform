@@ -26,3 +26,13 @@ jobs:
 
       - name: Build and run tests
         run: ./mvnw --batch-mode test
+
+      - name: Generate Javadoc
+        run: ./mvnw --batch-mode javadoc:javadoc
+
+      - name: Upload Javadoc
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-javadoc
+          path: target/reports/apidocs/
+          if-no-files-found: error

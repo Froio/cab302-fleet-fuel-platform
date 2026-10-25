@@ -39,6 +39,32 @@ public final class ReportingService {
         return new Report(months, records.invalidRows());
     }
 
+    public record VehicleExpenditure(Vehicle vehicle, java.math.BigDecimal cost, int entries) { }
+    public record Expenditure(List<VehicleExpenditure> vehicles, java.math.BigDecimal total, int invalidRows) { }
+
+    /** Reads fresh persisted entries on every call; totals use decimal arithmetic. */
+    public Expenditure expenditure(Integer vehicleId, LocalDate from, LocalDate to) {
+        if (!session.isManager()) throw new AuthorizationException("Fleet manager access is required.");
+        if (vehicleId != null && vehicleId <= 0) throw new IllegalArgumentException("Select a valid vehicle");
+        if (from != null && to != null && from.isAfter(to))
+            throw new IllegalArgumentException("Start date must be on or before end date");
+        var stored = dao.load(vehicleId);
+        var sums = new java.util.HashMap<Integer, java.math.BigDecimal>();
+        var counts = new java.util.HashMap<Integer, Integer>();
+        for (var row : stored.rows()) {
+            if (from != null && row.date().isBefore(from) || to != null && row.date().isAfter(to)) continue;
+            sums.merge(row.vehicleId(),java.math.BigDecimal.valueOf(row.cost()),java.math.BigDecimal::add);
+            counts.merge(row.vehicleId(),1,Integer::sum);
+        }
+        var results = vehicleDao.listAll().stream()
+                .filter(v -> vehicleId == null || v.id() == vehicleId)
+                .map(v -> new VehicleExpenditure(v,sums.getOrDefault(v.id(),java.math.BigDecimal.ZERO),
+                        counts.getOrDefault(v.id(),0))).toList();
+        var total = results.stream().map(VehicleExpenditure::cost)
+                .reduce(java.math.BigDecimal.ZERO,java.math.BigDecimal::add);
+        return new Expenditure(results,total,stored.invalidRows());
+    }
+
     public List<VehicleEmissions> compareVehicleEmissions() {
         if (!session.isManager()) {
             throw new AuthorizationException("Fleet manager access is required.");

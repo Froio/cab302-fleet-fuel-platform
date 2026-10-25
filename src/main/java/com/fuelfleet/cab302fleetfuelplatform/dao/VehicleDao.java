@@ -5,12 +5,9 @@ import com.fuelfleet.cab302fleetfuelplatform.db.DBManager;
 import com.fuelfleet.cab302fleetfuelplatform.exception.DataAccessException;
 import com.fuelfleet.cab302fleetfuelplatform.model.Vehicle;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDate;
+import javax.xml.transform.Result;
+import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +15,8 @@ import java.util.Optional;
 public class VehicleDao {
     private static final String SELECT_VEHICLE = """
             SELECT v.id, v.registration, v.make, v.model, v.fuel_type,
-                   v.current_odometer, v.assigned_driver_id, v.date_added,
-                   u.username AS assigned_driver_username
+            v.current_odometer, v.assigned_driver_id, v.date_added,
+            u.username AS assigned_driver_username
             FROM vehicles v
             LEFT JOIN users u ON u.id = v.assigned_driver_id
             """;
@@ -89,9 +86,10 @@ public class VehicleDao {
 
     public Vehicle insert(String registration, String make, String model, String fuelType, long currentOdometer) {
         String sql = """
-                INSERT INTO vehicles (registration, make, model, fuel_type, current_odometer, date_added)
-                VALUES (?, ?, ?, ?, ?, DATE('now'))
-                """;
+           INSERT INTO vehicles (registration,make,model, fuel_type, current_odometer, date_added)
+           VALUES (?, ?, ?, ?, ?, date ('now', 'localtime'))
+           """;
+
         try (Connection connection = connectionProvider.open();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, registration);
@@ -99,13 +97,23 @@ public class VehicleDao {
             statement.setString(3, model);
             statement.setString(4, fuelType);
             statement.setLong(5, currentOdometer);
+
+
             statement.executeUpdate();
+
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (!keys.next()) {
                     throw new IllegalStateException("Database did not return a vehicle ID");
                 }
-                return new Vehicle(keys.getInt(1), registration, make, model, fuelType,
-                        currentOdometer, null, null, LocalDate.now());
+
+                try (PreparedStatement read = connection.prepareStatement(SELECT_VEHICLE + " WHERE v.id = ?")) {
+                    read.setInt(1, keys.getInt(1));
+                    try (ResultSet rows = read.executeQuery()) {
+                        if (!rows.next()) throw new SQLException("New vehicle could not be read");
+                        return mapVehicle(rows);
+                    }
+                }
+
             }
         } catch (SQLException exception) {
             throw new DataAccessException("Unable to create vehicle", exception);
@@ -138,6 +146,84 @@ public class VehicleDao {
             throw new DataAccessException("Unable to update vehicle", exception);
         }
     }
+
+
+   public Optional<Long> findNextServiceOdometer(int vehicleId) {
+        String sql = """
+                SELECT next_service_odometer
+                FROM vehicles
+                WHERE id = ?
+                """;
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1,vehicleId);
+
+            try (ResultSet rows = statement.executeQuery()) {
+                if (!rows.next()) {
+                    return Optional.empty();
+
+                }
+
+                long reading = rows.getLong("next_service_odometer");
+
+                if (rows.wasNull()) {
+                    return Optional.empty();
+
+                }
+
+                return Optional.of(reading);
+
+            }
+
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Unable to load vehicle maintenance schedule",
+                    exception
+            );
+        }
+   }
+
+
+
+
+    public boolean updateNextServiceOdometer(
+            int vehicleId,
+            Long nextServiceOdometer
+    ) {
+        String sql = """
+               UPDATE vehicles
+               SET next_service_odometer = ?
+               WHERE id =?
+               """;
+        try (Connection connection = connectionProvider.open();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+           if (nextServiceOdometer == null) {
+               statement.setNull(1, Types.INTEGER);
+           } else {
+               statement.setLong(1, nextServiceOdometer);
+           }
+
+           if (nextServiceOdometer == null) {
+               statement.setNull(1, Types.INTEGER);
+
+           } else {
+               statement.setLong(1, nextServiceOdometer);
+           }
+            statement.setInt(2, vehicleId);
+
+            return statement.executeUpdate() == 1;
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Unable to update vehicle maintenance schedule" ,
+                    exception
+            );
+        }
+
+    }
+
+
+
 
     public boolean delete(int vehicleId) {
         try (Connection connection = connectionProvider.open();
@@ -194,7 +280,10 @@ public class VehicleDao {
                 rows.getLong("current_odometer"),
                 assignedDriverId,
                 rows.getString("assigned_driver_username"),
-                LocalDate.parse(rows.getString("date_added"))
+
+                rows.getString("date_added") == null
+                        ? null
+                        : java.time.LocalDate.parse(rows.getString("date_added"))
         );
     }
 }

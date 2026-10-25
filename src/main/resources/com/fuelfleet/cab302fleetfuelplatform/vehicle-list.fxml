@@ -23,14 +23,13 @@
       <padding><Insets right="24" bottom="12" left="24"/></padding>
       <TableView fx:id="vehicleTable" prefHeight="430">
         <columns>
-          <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-          <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="115"/>
-          <TableColumn fx:id="makeColumn" text="Make" prefWidth="105"/>
-          <TableColumn fx:id="modelColumn" text="Model" prefWidth="105"/>
-          <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="95"/>
-          <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="100"/>
-          <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="160"/>
-          <TableColumn fx:id="dateAddedColumn" text="Date Added" prefWidth="100"/>
+          <TableColumn fx:id="idColumn" text="ID" prefWidth="55"/>
+          <TableColumn fx:id="registrationColumn" text="Registration" prefWidth="125"/>
+          <TableColumn fx:id="makeColumn" text="Make" prefWidth="120"/>
+          <TableColumn fx:id="modelColumn" text="Model" prefWidth="120"/>
+          <TableColumn fx:id="fuelTypeColumn" text="Fuel Type" prefWidth="105"/>
+          <TableColumn fx:id="odometerColumn" text="Odometer" prefWidth="110"/>
+          <TableColumn fx:id="driverColumn" text="Assigned Driver" prefWidth="180"/>
         </columns>
       </TableView>
       <Label fx:id="statusLabel" wrapText="true"/>
