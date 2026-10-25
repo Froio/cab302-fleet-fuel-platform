@@ -41,6 +41,16 @@ This index maps the Project Progress and Performance assessment criteria to evid
 | Add-vehicle draft and revision | `docs/ui/add-vehicle-draft-1.png` and `docs/ui/add-vehicle-revised.png` | Iterative UI design |
 | Edit-vehicle draft and revision | `docs/ui/edit-vehicle-draft-1.png` and `docs/ui/edit-vehicle-revised.png` | Iterative UI design |
 
+## Fuel Logging UX Improvement — US07 and US14
+
+| Evidence | Location in the ZIP | Video section |
+|---|---|---|
+| UX improvement and manual testing record | `docs/planning/fuel-logging-ux-improvement.md` | Feedback-driven improvement |
+| Field-specific error highlighting | `src/main/java/com/fuelfleet/cab302fleetfuelplatform/FuelLoggingController.java` | Fuel logging validation demonstration |
+| Validation error styling | `src/main/resources/com/fuelfleet/cab302fleetfuelplatform/fleet-theme.css` | Fuel logging validation demonstration |
+| Implementation commit | `e0c6d5c` | Code improvement history |
+| Documentation commit | `5c21883` | Quality assurance evidence |
+
 ## Object-Oriented Design
 
 | Principle or pattern | Evidence in the ZIP | Video explanation |
@@ -55,13 +65,15 @@ This index maps the Project Progress and Performance assessment criteria to evid
 
 ## Testing and Continuous Integration
 
-| Evidence | Location in the ZIP | Video section |
-|---|---|---|
-| Behaviour-focused analytics tests | `src/test/java/com/fuelfleet/cab302fleetfuelplatform/AnalyticsServiceTest.java` | Automated testing |
+| Evidence | Location in the ZIP                                                                 | Video section |
+|---|-------------------------------------------------------------------------------------|---|
+| Behaviour-focused analytics tests | `src/test/java/com/fuelfleet/cab302fleetfuelplatform/AnalyticsServiceTest.java`     | Automated testing |
 | SQLite and authorisation integration tests | `src/test/java/com/fuelfleet/cab302fleetfuelplatform/ReportingIntegrationTest.java` | Automated testing |
-| GitHub Actions workflow | `.github/workflows/maven.yml` | Continuous integration |
-| Verified local result | 15 tests, 0 failures, 0 errors, 0 skipped | Maven test output |
-| Verified CI result | Successful run `35423031315` on `full-function` | GitHub Actions page |
+| GitHub Actions workflow | `.github/workflows/maven.yml`                                                       | Continuous integration |
+| Verified local result | 74 tests, 0 failures, 0 errors, 0 skipped                                           | Maven test output |
+| Automated Javadoc generation | `.github/workflows/maven.yml` | CI and Javadoc demonstration |
+| Generated Javadoc artifact | GitHub Actions run associated with commit `8ae8253`, artifact `generated-javadoc` | CI demonstration |
+| Verified CI result | Successful run `35423031315` on `full-function`                                     | GitHub Actions page |
 
 The current repository contains meaningful automated tests and a passing CI workflow. The submission does not claim separate Red, Green, and Refactor commits where those transitions are not present in the recorded history.
 
