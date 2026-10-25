@@ -18,7 +18,8 @@ public final class DBManager {
     }
 
     public static Connection getConnection() throws SQLException {
-        return provider(DEFAULT_URL).open();
+        String jdbcUrl = System.getProperty("fleet.db.url", DEFAULT_URL);
+        return provider(jdbcUrl).open();
     }
 
     public static ConnectionProvider provider(String jdbcUrl) {
@@ -45,6 +46,7 @@ public final class DBManager {
             connection.setAutoCommit(false);
             try {
                 createBaseTables(connection);
+                migrateUserProfileColumns(connection);
                 migrateVehicleColumns(connection);
                 createFuelLogs(connection);
                 createUniqueIndexes(connection);
@@ -76,8 +78,7 @@ public final class DBManager {
                         model TEXT NOT NULL,
                         fuel_type TEXT NOT NULL DEFAULT 'Unknown',
                         current_odometer INTEGER NOT NULL DEFAULT 0 CHECK (current_odometer >= 0),
-                        assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-                        date_added TEXT NOT NULL DEFAULT (DATE('now'))
+                        assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL
                     )
                     """);
         }
@@ -109,6 +110,28 @@ public final class DBManager {
     private static void migrateVehicleColumns(Connection connection) throws SQLException {
         Set<String> columns = tableColumns(connection, "vehicles");
         try (Statement statement = connection.createStatement()) {
+
+            if (!columns.contains("next_service_odometer")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN next_service_odometer INTEGER " +
+                             "CHECK (next_service_odometer IS NULL OR next_service_odometer >= 0)"
+                );
+            }
+
+
+            if (!columns.contains("date_added")) {
+                statement.executeUpdate(
+                        "ALTER TABLE vehicles ADD COLUMN date_added TEXT"
+                );
+            }
+
+            statement.executeUpdate("""
+                    CREATE TRIGGER IF NOT EXISTS vehicles_date_added_immutable
+                    BEFORE UPDATE OF date_added ON vehicles
+                    WHEN NEW.date_added IS NOT OLD.date_added
+                    BEGIN SELECT RAISE(ABORT, 'Vehicle date added cannot be changed'); END
+                    """);
+
             if (!columns.contains("fuel_type")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN fuel_type TEXT NOT NULL DEFAULT 'Unknown'");
             }
@@ -117,10 +140,6 @@ public final class DBManager {
             }
             if (!columns.contains("assigned_driver_id")) {
                 statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN assigned_driver_id INTEGER REFERENCES users(id) ON DELETE SET NULL");
-            }
-            if (!columns.contains("date_added")) {
-                statement.executeUpdate("ALTER TABLE vehicles ADD COLUMN date_added TEXT");
-                statement.executeUpdate("UPDATE vehicles SET date_added = DATE('now') WHERE date_added IS NULL");
             }
             statement.executeUpdate("UPDATE vehicles SET fuel_type = 'Unknown' WHERE fuel_type IS NULL OR TRIM(fuel_type) = ''");
             statement.executeUpdate("UPDATE vehicles SET current_odometer = 0 WHERE current_odometer IS NULL OR current_odometer < 0");
@@ -148,4 +167,24 @@ public final class DBManager {
         }
     }
 
+    private static void migrateUserProfileColumns(Connection connection)
+        throws SQLException {
+
+        Set<String> columns = tableColumns(connection, "users");
+
+        try (Statement statement = connection.createStatement()) {
+
+            if (!columns.contains("full_name")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN full_name TEXT"
+                );
+            }
+
+            if (!columns.contains("contact_email")) {
+                statement.executeUpdate(
+                        "ALTER TABLE users ADD COLUMN contact_email TEXT"
+                );
+            }
+        }
+    }
 }
