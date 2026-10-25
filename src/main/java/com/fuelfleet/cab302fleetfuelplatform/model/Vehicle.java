@@ -29,13 +29,30 @@ public record Vehicle(
         if (assignedDriverUsername != null) {
             assignedDriverUsername = assignedDriverUsername.trim();
         }
-        dateAdded = Objects.requireNonNull(dateAdded, "Date added is required");
+    }
+
+    public Vehicle(
+            int id,
+            String registration,
+            String make,
+            String model,
+            String fuelType,
+            long currentOdometer,
+            Integer assignedDriverId,
+            String assignedDriverUsername
+    ) {
+        this(id, registration, make, model, fuelType, currentOdometer,
+                assignedDriverId, assignedDriverUsername, null);
     }
 
     public String assignedDriverDisplay() {
         return assignedDriverUsername == null || assignedDriverUsername.isBlank()
                 ? "Unassigned"
                 : assignedDriverUsername;
+    }
+
+    public String dateAddedDisplay() {
+        return dateAdded == null ? "Not recorded (legacy vehicle)" : dateAdded.toString();
     }
 
     @Override
